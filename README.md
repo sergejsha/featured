@@ -1,2 +1,2 @@
-# featured
-Simple yet powerful composition framework for Android
+# Featured
+Simple yet powerful composition library for Android
