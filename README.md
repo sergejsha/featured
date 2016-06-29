@@ -61,7 +61,7 @@ You might ask where the `FragmentFeatureHost` class come from? Featured library 
 
 # I need more
 Here is some rules and implementaiton details helping you to become familiar with the library and write cleaner code.
-- Features must not access other features directly but shall interoperate through feature callbacks. Following this rule will be rewarded by simple, interchangible, maintainable and testable code later on.
+- Features must not access other features directly but shall interoperate through feature callbacks. By following this rule you'll be rewarded with simple, interchangible, maintainable and testable code later on.
 - You can define as many event callbacks as you need and event callbacks can have as many parameters as you need.
 - Generated feature host class contains a `dispatchOnEvent()` method for each `onEvent()` method.
 - To dispatch an event to all features you just need to call a corresponding `dispatchOnEvent()`.
