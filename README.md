@@ -26,10 +26,21 @@ public class FragmentFeature extends Feature<FragmentFeatureHost> {
 public class LoggerFeature extends ActivityFeature {
     private static final String TAG = "sample-app";
 
-    @Override protected void onCreate(Bundle savedInstanceState) { Log.d(TAG, "onCreate"); }
-    @Override protected void onStart() { Log.d(TAG, "onStart"); }
-    @Override protected void onStop() { Log.d(TAG, "onStop"); }
-    @Override protected void onDestroy() { Log.d(TAG, "onDestroy"); }
+    @Override protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
+    }
+    
+    @Override protected void onStart() {
+        Log.d(TAG, "onStart");
+    }
+    
+    @Override protected void onStop() {
+        Log.d(TAG, "onStop");
+    }
+    
+    @Override protected void onDestroy() {
+        Log.d(TAG, "onDestroy");
+    }
 }
 
 // 3. Last step is to create a feature host and to settle your features there.
