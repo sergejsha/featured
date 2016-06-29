@@ -38,12 +38,16 @@ public MyVeryComplexFragment extends Fragment {
     private FragmentFeatureHost mFeatureHost;
     
     @Override public void onCreate(Bundle savedInstanceState) {
-      // create feature host
-      mFeatureHost = new FragmentFeatureHost(getContext()).addFeature(new LoggerFeature());
+    
+      // create feature host and add a feature we created
+      mFeatureHost = new FragmentFeatureHost(getContext())
+            .addFeature(new LoggerFeature());
+            
       // dispatch event to all registered features
       mFeatureHost.dispatchOnCreate(savedInstanceState);
     }
     
+    // dispatch other events correspondingly
     @Override public void onStart() { mFeatureHost.dispatchOnStart(); }
     @Override public void onStop() { mFeatureHost.dispatchOnStop(); }
     @Override public void onDestroy() { mFeatureHost.dispatchOnDestroy(); }
