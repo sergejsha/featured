@@ -250,6 +250,55 @@ public class FeatureEventTest {
                 .generatesSources(expectedSource);
     }
 
+    @Test public void checkOnEventWithAnnotatedParameters() throws Exception {
+
+        JavaFileObject source = JavaFileObjects
+                .forSourceString("de.halfbit.featured.test.TestFeature", ""
+                        + "package de.halfbit.featured.test;\n"
+                        + "import de.halfbit.featured.FeatureEvent;\n"
+                        + "import de.halfbit.featured.Feature;\n"
+                        + "import android.support.annotation.NonNull;\n"
+                        + "import android.support.annotation.Nullable;\n"
+                        + "public class TestFeature extends Feature<TestFeatureHost> {\n"
+                        + "    @FeatureEvent protected void onStart(@NonNull String event, @Nullable Object data) { }\n"
+                        + "}"
+                );
+
+        JavaFileObject expectedSource = JavaFileObjects
+                .forSourceString("de.halfbit.featured.test.TestFeatureHost", ""
+                        + "package de.halfbit.featured.test;\n"
+                        + "import android.content.Context;\n"
+                        + "import android.support.annotation.NonNull;\n"
+                        + "import android.support.annotation.Nullable;\n"
+                        + "import de.halfbit.featured.FeatureHost;\n"
+                        + "public class TestFeatureHost extends FeatureHost<TestFeature, TestFeatureHost> {\n"
+                        + "    public TestFeatureHost(@NonNull Context context) {\n"
+                        + "        super(context);\n"
+                        + "    }\n"
+                        + "    public void dispatchOnStart(@NonNull String event, @Nullable Object data) {\n"
+                        + "        dispatch(new OnStartEvent(event, data));\n"
+                        + "    }\n"
+                        + "    private static final class OnStartEvent extends FeatureHost.Event<TestFeature> {\n"
+                        + "        private final @NonNull String mEvent;\n"
+                        + "        private final @Nullable Object mData;\n"
+                        + "        OnStartEvent(@NonNull String event, @Nullable Object data) {\n"
+                        + "            mEvent = event;\n"
+                        + "            mData = data;\n"
+                        + "        }\n"
+                        + "        @Override protected void dispatch(TestFeature feature) {\n"
+                        + "            feature.onStart(mEvent, mData);\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}"
+                );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new FeatureProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expectedSource);
+    }
+
     @Test public void checkOnEventErrorInheritFeature() throws Exception {
 
         JavaFileObject source = JavaFileObjects

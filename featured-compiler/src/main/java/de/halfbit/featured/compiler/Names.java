@@ -15,10 +15,15 @@
  */
 package de.halfbit.featured.compiler;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -147,7 +152,18 @@ public class Names {
 
             case DECLARED:
                 TypeMirror type = param.asType();
-                return ClassName.get(type);
+                TypeName typeName = ClassName.get(type);
+
+                List<? extends AnnotationMirror> annotationMirrors = param.getAnnotationMirrors();
+                if (annotationMirrors.size() > 0) {
+                    List<AnnotationSpec> annotationSpecs = new ArrayList<>(annotationMirrors.size());
+                    for (AnnotationMirror annotationMirror : annotationMirrors) {
+                        annotationSpecs.add(AnnotationSpec.get(annotationMirror));
+                    }
+                    typeName = typeName.annotated(annotationSpecs);
+                }
+
+                return typeName;
 
             default:
                 throw new IllegalStateException("unsupported kind: " + param.asType().getKind());
@@ -157,4 +173,5 @@ public class Names {
     public ClassName getDispatchCompletedClassName() {
         return FEATURE_HOST_DISPATCH_COMPLETED;
     }
+
 }
