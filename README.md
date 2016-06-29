@@ -55,7 +55,7 @@ public MyVeryComplexFragment extends Fragment {
 
 // That's it.
 ```
-Now your complext fragment became just a barebone for your features and the whole complext logic is grouped by its aspects into individual features.
+Now your complext fragment became just a barebone for your features and the whole complext logic is split into smaller individual features.
 
 You might ask where the `FragmentFeatureHost` class come from? Featured library parses `@FeatureEvent` annotations in the basefeature class and generates a proper feature host class for you. Every change in `FragmentFeature` will be reflected in `FragmentFeatureHost` after rebuilding the project.
 
