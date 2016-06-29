@@ -18,6 +18,9 @@ public class FragmentFeature extends Feature<FragmentFeatureHost> {
     @FeatureEvent protected void onDestroy() {}
 }
 
+// We defined standard fragments lifecycle events for sake of simplicity. 
+// In your real app the events can be anything you need.
+
 // 2. Now you can start writing your features by extending just created `FragmentFeature` class.
 
 public class LoggerFeature extends ActivityFeature {
@@ -48,7 +51,7 @@ public MyVeryComplexFragment extends Fragment {
 
 // That's it.
 ```
-Now your complext fragment became just a barebone for your features and the whole complext logic is grouped by implementation aspects and put into an individual features.
+Now your complext fragment became just a barebone for your features and the whole complext logic is grouped by its aspects into individual features.
 
 You might ask where the `FragmentFeatureHost` class come from? Featured library parses `@FeatureEvent` annotations in the basefeature class and generates a proper feature host class for you. Every change in `FragmentFeature` will be reflected in `FragmentFeatureHost` after rebuilding the project.
 
