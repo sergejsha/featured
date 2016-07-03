@@ -16,6 +16,7 @@
 package de.halfbit.featured.sample;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import de.halfbit.featured.Feature;
 import de.halfbit.featured.FeatureEvent;
@@ -23,7 +24,7 @@ import de.halfbit.featured.FeatureEvent;
 public class ActivityFeature extends Feature<ActivityFeatureHost> {
 
     @FeatureEvent
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         // nop
     }
 
@@ -37,7 +38,7 @@ public class ActivityFeature extends Feature<ActivityFeatureHost> {
         // nop
     }
 
-    @FeatureEvent()
+    @FeatureEvent
     protected void onDestroy() {
         // nop
     }

@@ -16,6 +16,7 @@
 package de.halfbit.featured;
 
 import android.content.Context;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -101,6 +102,8 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
     }
 
     protected void dispatch(Event event) {
+        assertMainThread();
+
         if (mDispatchingEvent == null) {
             mDispatchingEvent = event;
 
@@ -133,6 +136,14 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
             e = e.mNextEvent;
         }
         e.mNextEvent = event;
+    }
+
+    private void assertMainThread() {
+        if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
+            throw new IllegalStateException(
+                    "Dispatch must be called in MainThread. Current thread: "
+                            + Thread.currentThread());
+        }
     }
 
 }
