@@ -25,6 +25,7 @@ import de.halfbit.featured.FeatureEvent;
 
 /**
  * Basis class for all features. It declares all events every feature can receive.
+ * Featured library will generate a SampleFeatureHost to be used in your activity.
  */
 public class SampleFeature extends Feature<SampleFeatureHost> {
 

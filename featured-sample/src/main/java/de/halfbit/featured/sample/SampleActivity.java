@@ -33,7 +33,7 @@ public class SampleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
 
-        // create feature host: try to comment out some features and see what happens
+        // try to comment out some features and see what happens
         mFeatureHost = new SampleFeatureHost(this)
                 .with(new LoggerFeature())
                 .with(new ToolbarFeature())
@@ -41,7 +41,6 @@ public class SampleActivity extends AppCompatActivity {
                 .with(new ToastFeature())
                 .with(new FabFeature());
 
-        // dispatch on create event
         CoordinatorLayout parent = (CoordinatorLayout)
                 findViewById(R.id.coordinatorLayout);
         mFeatureHost.dispatchOnCreate(parent, savedInstanceState);
