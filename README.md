@@ -9,50 +9,57 @@ Features are hosted by a `FeatureHost` which resides in an activity or a fragmen
 
 ```java
 
-// 1. Create a base feature class with all events your features will exchange.
+// Create a basis class for yout features. It declares all events every feature can receive.
 
-public class FragmentFeature extends Feature<FragmentFeatureHost> {
-    @FeatureEvent protected void onCreate(Bundle savedInstanceState) {}
+public class SampleFeature extends Feature<SampleFeatureHost> {
+
+    @FeatureEvent protected void onCreate(@NonNull CoordinatorLayout parent, 
+                                          @Nullable Bundle savedInstanceState) {}
     @FeatureEvent protected void onStart() {}
+    @FeatureEvent protected void onFabClicked() {}
     @FeatureEvent protected void onStop() {}
     @FeatureEvent protected void onDestroy() {}
+    
 }
 
-// We defined standard fragments lifecycle events for sake of simplicity. 
-// In your real app the events can be anything you need.
+// Start writing your features by extending `SampleFeature` class.
 
-// 2. Now you can start writing your features by extending just created `FragmentFeature` class.
+public class ToolbarFeature extends SampleFeature {
+    private Toolbar mToolbar;
 
-public class LoggerFeature extends ActivityFeature {
-    private static final String TAG = "sample-app";
-
-    @Override protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
-    }
-    
-    @Override protected void onStart() {
-        Log.d(TAG, "onStart");
-    }
-    
-    @Override protected void onStop() {
-        Log.d(TAG, "onStop");
-    }
-    
-    @Override protected void onDestroy() {
-        Log.d(TAG, "onDestroy");
+    @Override protected void onCreate(@NonNull CoordinatorLayout parent, 
+                                      @Nullable Bundle savedInstanceState) {
+        mToolbar = Utils.findAndShowView(parent, R.id.toolbar);
+        AppCompatActivity activity = Utils.getActivity(parent.getContext());
+        activity.setSupportActionBar(mToolbar);
+        ...
     }
 }
 
-// 3. Last step is to create a feature host and to settle your features there.
+public class FabFeature extends SampleFeature implements View.OnClickListener {
+    private FloatingActionButton mButton;
+
+    @Override protected void onCreate(@NonNull CoordinatorLayout parent, 
+                                      @Nullable Bundle savedInstanceState) {
+        mButton = Utils.findAndShowView(parent, R.id.fab, this);
+    }
+
+    @Override public void onClick(View view) {
+        getFeatureHost().dispatchOnFabClicked();
+    }
+}
+
+// Last step is to add features to feature host class in your activity or a fragment.
 
 public MyVeryComplexFragment extends Fragment {
-    private FragmentFeatureHost mFeatureHost;
+    private SampleFeatureHost mFeatureHost;
     
     @Override public void onCreate(Bundle savedInstanceState) {
     
       // create feature host and add a feature we created
-      mFeatureHost = new FragmentFeatureHost(getContext())
-            .addFeature(new LoggerFeature());
+      mFeatureHost = new SampleFeatureHost(getContext())
+            .with(new FabFeature())
+            .with(new ToolbarFeature());
             
       // dispatch event to all registered features
       mFeatureHost.dispatchOnCreate(savedInstanceState);
@@ -64,11 +71,12 @@ public MyVeryComplexFragment extends Fragment {
     @Override public void onDestroy() { mFeatureHost.dispatchOnDestroy(); }
 }
 
-// That's it.
-```
-Now your complext fragment became just a barebone for your features and the whole complext logic is split into smaller individual features.
+// Your fragment become very simple and whole application code gets split into 
+// separated features with very clean responcibility.
 
-You might ask where the `FragmentFeatureHost` class come from? Featured library parses `@FeatureEvent` annotations in the basefeature class and generates a proper feature host class for you. Every change in `FragmentFeature` will be reflected in `FragmentFeatureHost` after rebuilding the project.
+```
+
+You might ask where the `FragmentFeatureHost` class come from? Featured library parses `@FeatureEvent` annotations in the base feature class and generates a proper feature host class for you. Every change in `FragmentFeature` will be reflected in `FragmentFeatureHost` after rebuilding the project.
 
 # I need more
 Here is some rules and implementaiton details helping you to become familiar with the library and write cleaner code.
