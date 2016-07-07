@@ -57,10 +57,10 @@ import android.support.annotation.NonNull;
  * feature implementations we can now register them in a feature host.
  * <pre>
  * LifecycleFeatureHost host = new LifecycleFeatureHost(this)
- *     .addFeature(new LoggerFeature())
- *     .addFeature(new ToolbarFeature())
- *     .addFeature(new LoadItemFeature())
- *     .addFeature(...);
+ *     .with(new LoggerFeature())
+ *     .with(new ToolbarFeature())
+ *     .with(new LoadItemFeature())
+ *     .with(...);
  * </pre>
  * You might notice, there is no such class as {@code LifecycleFeatureHost} in the library,
  * but we reference it already twice. You are absolutely right. This is where the magic
@@ -72,7 +72,7 @@ import android.support.annotation.NonNull;
  * is really easy. We override activity's lifecycle callbacks as following:
  * <pre>
  * &#64;Override public void onCreate(Bundle savedInstanceState) {
- *     mFeatureHost = new LifecycleFeatureHost(this).addFeature(new LoggerFeature());
+ *     mFeatureHost = new LifecycleFeatureHost(this).with(new LoggerFeature());
  *     mFeatureHost.dispatchOnCreate(savedInstanceState);
  * }
  *

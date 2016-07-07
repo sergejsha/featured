@@ -16,15 +16,19 @@
 package de.halfbit.featured.sample.features;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.Log;
 
-import de.halfbit.featured.sample.ActivityFeature;
+import de.halfbit.featured.sample.SampleFeature;
 
-public class LoggerFeature extends ActivityFeature {
+public class LoggerFeature extends SampleFeature {
 
-    private static final String TAG = "sample-app";
+    private static final String TAG = "featured-sample-logger";
 
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@NonNull CoordinatorLayout parent, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
     }
 

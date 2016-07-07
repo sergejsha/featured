@@ -15,22 +15,36 @@
  */
 package de.halfbit.featured.sample;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v7.app.AppCompatActivity;
 
+import de.halfbit.featured.sample.features.FabFeature;
 import de.halfbit.featured.sample.features.LoggerFeature;
+import de.halfbit.featured.sample.features.SnackBarFeature;
+import de.halfbit.featured.sample.features.ToastFeature;
+import de.halfbit.featured.sample.features.ToolbarFeature;
 
-public class SampleActivity extends Activity {
+public class SampleActivity extends AppCompatActivity {
 
-    private ActivityFeatureHost mFeatureHost;
+    private SampleFeatureHost mFeatureHost;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sample);
 
-        mFeatureHost = new ActivityFeatureHost(this)
-                .addFeature(new LoggerFeature());
+        // create feature host: try to comment out some features and see what happens
+        mFeatureHost = new SampleFeatureHost(this)
+                .with(new LoggerFeature())
+                .with(new ToolbarFeature())
+                .with(new SnackBarFeature())
+                .with(new ToastFeature())
+                .with(new FabFeature());
 
-        mFeatureHost.dispatchOnCreate(savedInstanceState);
+        // dispatch on create event
+        CoordinatorLayout parent = (CoordinatorLayout)
+                findViewById(R.id.coordinatorLayout);
+        mFeatureHost.dispatchOnCreate(parent, savedInstanceState);
     }
 
     @Override protected void onStart() {

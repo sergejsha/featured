@@ -45,15 +45,17 @@ ext {
 }
 
 ext.deps = [
-    // Android
+    // android
     android: 'com.google.android:android:2.1.2',
     supportv4: 'com.android.support:support-v4:24.0.0',
     supportAnnotations: 'com.android.support:support-annotations:24.0.0',
+    supportAppCompat: 'com.android.support:appcompat-v7:24.0.0',
+    supportDesign: 'com.android.support:design:24.0.0',
 
-    // Square
+    // open source
     javapoet: 'com.squareup:javapoet:1.7.0',
 
-    // Test dependencies
+    // testing
     junit: 'junit:junit:4.12',
     truth: 'com.google.truth:truth:0.28',
     robolectric: 'org.robolectric:robolectric:3.1',

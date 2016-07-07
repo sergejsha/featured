@@ -16,20 +16,30 @@
 package de.halfbit.featured.sample;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 
 import de.halfbit.featured.Feature;
 import de.halfbit.featured.FeatureEvent;
 
-public class ActivityFeature extends Feature<ActivityFeatureHost> {
+/**
+ * Basis class for all features. It declares all events every feature can receive.
+ */
+public class SampleFeature extends Feature<SampleFeatureHost> {
 
     @FeatureEvent
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@NonNull CoordinatorLayout parent, @Nullable Bundle savedInstanceState) {
         // nop
     }
 
     @FeatureEvent
     protected void onStart() {
+        // nop
+    }
+
+    @FeatureEvent
+    protected void onFabClicked() {
         // nop
     }
 

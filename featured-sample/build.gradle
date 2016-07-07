@@ -2,50 +2,53 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
-  buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
-  compileOptions {
-    sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
-    targetCompatibility = rootProject.ext.targetCompatibilityVersion
-  }
-
-  defaultConfig {
-    applicationId 'de.halfbit.featured'
-    minSdkVersion rootProject.ext.minSdkVersion
-    targetSdkVersion rootProject.ext.targetSdkVersion
-    versionCode 1
-    versionName '1.0.0'
-  }
-
-  lintOptions {
-    textReport true
-    textOutput 'stdout'
-  }
-
-  buildTypes {
-    debug {
-      minifyEnabled true
+    compileOptions {
+        sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
+        targetCompatibility = rootProject.ext.targetCompatibilityVersion
     }
-  }
+
+    defaultConfig {
+        applicationId 'de.halfbit.featured'
+        minSdkVersion 11
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    lintOptions {
+        textReport true
+        textOutput 'stdout'
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled true
+        }
+    }
 }
 
 dependencies {
-  compile project(':featured')
-  apt project(':featured-compiler')
+    compile project(':featured')
+    compile deps.supportAppCompat
+    compile deps.supportDesign
 
-  testCompile deps.junit
-  testCompile deps.truth
-  testCompile deps.robolectric
+    apt project(':featured-compiler')
+
+    testCompile deps.junit
+    testCompile deps.truth
+    testCompile deps.robolectric
 }
 
 afterEvaluate {
-  tasks.withType(com.android.build.gradle.internal.tasks.AndroidTestTask) { task ->
-    task.doFirst {
-      logging.level = LogLevel.INFO
+    tasks.withType(com.android.build.gradle.internal.tasks.AndroidTestTask) { task ->
+        task.doFirst {
+            logging.level = LogLevel.INFO
+        }
+        task.doLast {
+            logging.level = LogLevel.LIFECYCLE
+        }
     }
-    task.doLast {
-      logging.level = LogLevel.LIFECYCLE
-    }
-  }
 }

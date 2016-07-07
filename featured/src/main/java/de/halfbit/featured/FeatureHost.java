@@ -79,7 +79,7 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      * @return this feature host for fluent interface
      */
     @NonNull @SuppressWarnings("unchecked")
-    public FH addFeature(F feature) {
+    public FH with(F feature) {
         Class<F> clazz = (Class<F>) feature.getClass();
         if (mFeatures.containsKey(clazz)) {
             throw new IllegalArgumentException(
