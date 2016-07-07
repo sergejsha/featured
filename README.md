@@ -13,8 +13,7 @@ Features are hosted by a `FeatureHost` which resides in an activity or a fragmen
 ```java
 public class SampleFeature extends Feature<SampleFeatureHost> {
 
-    @FeatureEvent protected void onCreate(@NonNull CoordinatorLayout parent, 
-                                          @Nullable Bundle savedInstanceState) {}
+    @FeatureEvent protected void onCreate(@NonNull CoordinatorLayout parent) {}
     @FeatureEvent protected void onStart() {}
     @FeatureEvent protected void onFabClicked() {}
     @FeatureEvent protected void onStop() {}
@@ -29,8 +28,7 @@ public class SampleFeature extends Feature<SampleFeatureHost> {
 public class ToolbarFeature extends SampleFeature {
     private Toolbar mToolbar;
 
-    @Override protected void onCreate(@NonNull CoordinatorLayout parent, 
-                                      @Nullable Bundle savedInstanceState) {
+    @Override protected void onCreate(@NonNull CoordinatorLayout parent) {
         mToolbar = Utils.findAndShowView(parent, R.id.toolbar);
         AppCompatActivity activity = Utils.getActivity(parent.getContext());
         activity.setSupportActionBar(mToolbar);
@@ -44,8 +42,7 @@ public class ToolbarFeature extends SampleFeature {
 public class FabFeature extends SampleFeature implements View.OnClickListener {
     private FloatingActionButton mButton;
 
-    @Override protected void onCreate(@NonNull CoordinatorLayout parent, 
-                                      @Nullable Bundle savedInstanceState) {
+    @Override protected void onCreate(@NonNull CoordinatorLayout parent) {
         mButton = Utils.findAndShowView(parent, R.id.fab, this);
     }
 
@@ -62,14 +59,16 @@ public MyFragment extends Fragment {
     private SampleFeatureHost mFeatureHost;
     
     @Override public void onCreate(Bundle savedInstanceState) {
-    
+      ...
+      CoordinatorLayout parent = (CoordinatorLayout) findViewById(R.id.coordinator);
+      
       // create feature host and add a feature we created
       mFeatureHost = new SampleFeatureHost(getContext())
             .with(new FabFeature())
             .with(new ToolbarFeature());
             
       // dispatch event to all registered features
-      mFeatureHost.dispatchOnCreate(savedInstanceState);
+      mFeatureHost.dispatchOnCreate(parent);
     }
     
     // dispatch other events correspondingly
