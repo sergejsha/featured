@@ -7,10 +7,10 @@ Features are hosted by a `FeatureHost` which resides in an activity or a fragmen
 
 # How can I write a feature?
 
+
+1) Create a basis class for yout features. It declares all events every feature can receive.
+
 ```java
-
-// Create a basis class for yout features. It declares all events every feature can receive.
-
 public class SampleFeature extends Feature<SampleFeatureHost> {
 
     @FeatureEvent protected void onCreate(@NonNull CoordinatorLayout parent, 
@@ -21,9 +21,11 @@ public class SampleFeature extends Feature<SampleFeatureHost> {
     @FeatureEvent protected void onDestroy() {}
     
 }
+```
 
-// Start writing your features by extending `SampleFeature` class.
+2) Start writing your features by extending `SampleFeature` class.
 
+```java
 public class ToolbarFeature extends SampleFeature {
     private Toolbar mToolbar;
 
@@ -51,9 +53,11 @@ public class FabFeature extends SampleFeature implements View.OnClickListener {
         getFeatureHost().dispatchOnFabClicked();
     }
 }
+```
 
-// Last step is to add features to feature host class in your activity or a fragment.
+3) Add features to feature host class in your activity or a fragment.
 
+```java
 public MyFragment extends Fragment {
     private SampleFeatureHost mFeatureHost;
     
@@ -73,15 +77,11 @@ public MyFragment extends Fragment {
     @Override public void onStop() { mFeatureHost.dispatchOnStop(); }
     @Override public void onDestroy() { mFeatureHost.dispatchOnDestroy(); }
 }
-
-// Your fragment become very simple and whole application code gets
-// split into separated features with very clean responcibility. 
-
-// See Sample App for more details
-
 ```
 
-You might ask where the `SampleFeatureHost` class come from? Featured library parses `@FeatureEvent` annotations in the base feature class and generates a proper feature host class for you. Every change in `SampleFeature` will be reflected in `SampleFeatureHost` after rebuilding the project.
+Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. See Sample App for more details
+
+Where did the `SampleFeatureHost` class come from? The library parses `@FeatureEvent` annotations in the base feature class and generates a proper feature host class for you. Every change in `SampleFeature` will be reflected in `SampleFeatureHost` after rebuilding the project.
 
 # I need more
 Here is some rules and implementaiton details helping you to become familiar with the library and write cleaner code.
