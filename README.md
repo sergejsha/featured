@@ -81,7 +81,7 @@ public MyFragment extends Fragment {
 
 ```
 
-You might ask where the `FragmentFeatureHost` class come from? Featured library parses `@FeatureEvent` annotations in the base feature class and generates a proper feature host class for you. Every change in `FragmentFeature` will be reflected in `FragmentFeatureHost` after rebuilding the project.
+You might ask where the `SampleFeatureHost` class come from? Featured library parses `@FeatureEvent` annotations in the base feature class and generates a proper feature host class for you. Every change in `SampleFeature` will be reflected in `SampleFeatureHost` after rebuilding the project.
 
 # I need more
 Here is some rules and implementaiton details helping you to become familiar with the library and write cleaner code.
