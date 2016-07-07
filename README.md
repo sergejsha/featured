@@ -47,6 +47,7 @@ public class FabFeature extends SampleFeature implements View.OnClickListener {
     }
 
     @Override public void onClick(View view) {
+        // dispatch click to other features
         getFeatureHost().dispatchOnFabClicked();
     }
 }
