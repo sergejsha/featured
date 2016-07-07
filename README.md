@@ -32,7 +32,10 @@ public class ToolbarFeature extends SampleFeature {
         mToolbar = Utils.findAndShowView(parent, R.id.toolbar);
         AppCompatActivity activity = Utils.getActivity(parent.getContext());
         activity.setSupportActionBar(mToolbar);
-        ...
+    }
+    
+    @Override protected void onFabClicked() {
+        // write your FAB handler in here
     }
 }
 
@@ -51,7 +54,7 @@ public class FabFeature extends SampleFeature implements View.OnClickListener {
 
 // Last step is to add features to feature host class in your activity or a fragment.
 
-public MyVeryComplexFragment extends Fragment {
+public MyFragment extends Fragment {
     private SampleFeatureHost mFeatureHost;
     
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -71,8 +74,10 @@ public MyVeryComplexFragment extends Fragment {
     @Override public void onDestroy() { mFeatureHost.dispatchOnDestroy(); }
 }
 
-// Your fragment become very simple and whole application code gets split into 
-// separated features with very clean responcibility.
+// Your fragment become very simple and whole application code gets
+// split into separated features with very clean responcibility. 
+
+// See Sample App for more details
 
 ```
 
