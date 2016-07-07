@@ -1,5 +1,5 @@
 # Featured
-It structures activity's or fragment's code into small, decoupled, maintainable and testable units called features. 
+It easily structures activity's or fragment's code into small, decoupled, maintainable and testable units called features. 
 
 Features are hosted by a `FeatureHost` which resides in an activity or a fragment. Features communicate to each other through their feature host by means of events as shown in the picture below.
 
