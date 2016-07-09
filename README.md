@@ -79,7 +79,7 @@ public MyFragment extends Fragment {
 }
 ```
 
-Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. See featured-sample project for more details.
+Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. You can add new features or disable existing features depending on the device configuration etc. See `featured-sample` project for more detail.
 
 # Use with Gradle
 
