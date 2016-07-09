@@ -1,14 +1,13 @@
 # Featured
-It easily structures activity's or fragment's code into small, decoupled, maintainable and testable units called features. 
+splits your activity or fragment code into truly decoupled, testable and maintainable features.
 
-Features are hosted by a `FeatureHost` which resides in an activity or a fragment. Features communicate to each other through their feature host by means of events as shown in the picture below.
+Features are hosted by a `FeatureHost` which resides in an activity or a fragment. Features communicate to each other through the feature host by means of events as shown in the picture below.
 
 ![diagram][1]
 
-# How can I write a feature?
+# How do I write a feature?
 
-
-1) Create a basis class for yout features. It declares all events every feature can receive.
+1) Create a basis class for your features with all events they can receive.
 
 ```java
 public class SampleFeature extends Feature<SampleFeatureHost> {
@@ -21,8 +20,9 @@ public class SampleFeature extends Feature<SampleFeatureHost> {
     
 }
 ```
+`SampleFeatureHost` will be generated for you as soon as you save and build your feature class. It contains corresponding dispatch-methods and will host all your features.
 
-2) Start writing your features by extending `SampleFeature` class.
+2) Implement your features.
 
 ```java
 public class ToolbarFeature extends SampleFeature {
@@ -53,7 +53,7 @@ public class FabFeature extends SampleFeature implements View.OnClickListener {
 }
 ```
 
-3) Add features to feature host class in your activity or a fragment.
+3) Add features to the feature host class in your activity or a fragment.
 
 ```java
 public MyFragment extends Fragment {
@@ -79,9 +79,37 @@ public MyFragment extends Fragment {
 }
 ```
 
-Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. See Sample App for more details
+Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. See featured-sample project for more details.
 
-Where did the `SampleFeatureHost` class come from? The library parses `@FeatureEvent` annotations in the base feature class and generates a proper feature host class for you. Every change in `SampleFeature` will be reflected in `SampleFeatureHost` after rebuilding the project.
+# Use with Gradle
+
+Add this to you project-level `build.gradle`:
+
+```groovy
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
+```
+
+Add this to your module-level `build.gradle`:
+
+```groovy
+apply plugin: 'android-apt'
+
+android {
+    ...
+}
+
+dependencies {
+    apt "de.halfbit:featured-compiler:0.0.1"
+    compile "de.halfbit:featured:0.0.1"
+}
+```
 
 # I need more
 Here is some rules and implementaiton details helping you to become familiar with the library and write cleaner code.
