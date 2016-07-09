@@ -1,5 +1,5 @@
 # Featured
-splits your activity or fragment code into truly decoupled, testable and maintainable features.
+helps you to split activity or fragment code into truly decoupled, testable and maintainable features.
 
 Features are hosted by a `FeatureHost` which resides in an activity or a fragment. Features communicate to each other through the feature host by means of events as shown in the picture below.
 
