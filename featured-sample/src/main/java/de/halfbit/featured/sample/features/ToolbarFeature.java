@@ -16,7 +16,8 @@ public class ToolbarFeature extends SampleFeature {
     private Toolbar mToolbar;
 
     @Override
-    protected void onCreate(@NonNull CoordinatorLayout parent, @Nullable Bundle savedInstanceState) {
+    protected void onCreate(@NonNull CoordinatorLayout parent,
+                            @Nullable Bundle savedInstanceState) {
         mToolbar = Utils.findAndShowView(parent, R.id.toolbar);
 
         AppCompatActivity activity = Utils.getActivity(parent.getContext());

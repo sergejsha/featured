@@ -31,11 +31,14 @@ android {
 }
 
 dependencies {
+    apt project(':featured-compiler')
     compile project(':featured')
+
+//    apt "de.halfbit:featured-compiler:0.0.1"
+//    compile "de.halfbit:featured:0.0.1"
+
     compile deps.supportAppCompat
     compile deps.supportDesign
-
-    apt project(':featured-compiler')
 
     testCompile deps.junit
     testCompile deps.truth

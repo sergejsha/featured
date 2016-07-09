@@ -16,7 +16,8 @@ public class FabFeature extends SampleFeature implements View.OnClickListener {
     private FloatingActionButton mButton;
 
     @Override
-    protected void onCreate(@NonNull CoordinatorLayout parent, @Nullable Bundle savedInstanceState) {
+    protected void onCreate(@NonNull CoordinatorLayout parent,
+                            @Nullable Bundle savedInstanceState) {
         mButton = Utils.findAndShowView(parent, R.id.fab, this);
     }
 

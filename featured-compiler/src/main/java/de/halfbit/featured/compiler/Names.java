@@ -156,7 +156,8 @@ public class Names {
 
                 List<? extends AnnotationMirror> annotationMirrors = param.getAnnotationMirrors();
                 if (annotationMirrors.size() > 0) {
-                    List<AnnotationSpec> annotationSpecs = new ArrayList<>(annotationMirrors.size());
+                    List<AnnotationSpec> annotationSpecs =
+                            new ArrayList<>(annotationMirrors.size());
                     for (AnnotationMirror annotationMirror : annotationMirrors) {
                         annotationSpecs.add(AnnotationSpec.get(annotationMirror));
                     }

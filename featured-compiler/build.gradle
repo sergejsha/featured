@@ -7,31 +7,31 @@ targetCompatibility = rootProject.ext.targetCompatibilityVersion
 def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
 def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
 for (File file : sdkHandler.sdkLoader.repositories) {
-  repositories.maven {
-    url = file.toURI()
-  }
+    repositories.maven {
+        url = file.toURI()
+    }
 }
 
 dependencies {
-  compile project(':featured-annotations')
-  compile deps.autoservice
-  compile deps.autocommon
-  compile deps.javapoet
+    compile project(':featured-annotations')
+    compile deps.autoservice
+    compile deps.autocommon
+    compile deps.javapoet
 
-  testCompile deps.junit
-  testCompile deps.truth
-  testCompile deps.robolectric
-  // TODO: Unfortunately we can't use deps.supportv4 here as the Java plugin does not support AAR dependencies
-  testCompile 'com.google.android:support-v4:r7'
-  testCompile deps.compiletesting
-  testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    testCompile deps.junit
+    testCompile deps.truth
+    testCompile deps.robolectric
+    // TODO: Unfortunately we can't use deps.supportv4 here as the Java plugin does not support AAR dependencies
+    testCompile 'com.google.android:support-v4:r7'
+    testCompile deps.compiletesting
+    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
 checkstyle {
-  configFile rootProject.file('checkstyle.xml')
-  showViolations true
-  //Remove this when tests are less verbose, i.e. using JavaPoet
-  sourceSets = [sourceSets.main]
+    configFile rootProject.file('checkstyle.xml')
+    showViolations true
+    //Remove this when tests are less verbose, i.e. using JavaPoet
+    sourceSets = [sourceSets.main]
 }
 
-//apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

@@ -30,7 +30,8 @@ import de.halfbit.featured.FeatureEvent;
 public class SampleFeature extends Feature<SampleFeatureHost> {
 
     @FeatureEvent
-    protected void onCreate(@NonNull CoordinatorLayout parent, @Nullable Bundle savedInstanceState) {
+    protected void onCreate(@NonNull CoordinatorLayout parent,
+                            @Nullable Bundle savedInstanceState) {
         // nop
     }
 

@@ -87,7 +87,8 @@ public class FeatureModelBrewer implements ModelNodeVisitor {
 
         String fieldName = "m" + Names.capitalize(param.getName());
         if (!param.isDispatchCompleted()) {
-            mEventTypeBuilder.addField(param.getType(), fieldName, Modifier.PRIVATE, Modifier.FINAL);
+            mEventTypeBuilder.addField(
+                    param.getType(), fieldName, Modifier.PRIVATE, Modifier.FINAL);
             mListedFields.append(fieldName).append(", ");
         }
         mListedParams.append(param.getName()).append(", ");
@@ -116,8 +117,10 @@ public class FeatureModelBrewer implements ModelNodeVisitor {
                         .addMethod(MethodSpec.methodBuilder("dispatch")
                                 .addModifiers(Modifier.PROTECTED)
                                 .addAnnotation(mNames.getOverrideClassName())
-                                .addParameter(mNames.getFeatureClassName(methodElement.getParent()), "feature")
-                                .addStatement("feature.$L($L)", mNames.getFeatureMethodName(methodElement), fieldNames)
+                                .addParameter(mNames.getFeatureClassName(
+                                        methodElement.getParent()), "feature")
+                                .addStatement("feature.$L($L)",
+                                        mNames.getFeatureMethodName(methodElement), fieldNames)
                                 .build())
                         .build())
                 // dispatch event method

@@ -7,6 +7,9 @@ import android.view.View;
 
 public class Utils {
 
+    private Utils() {
+    }
+
     public static <T> T findAndShowView(@NonNull View parent, int id) {
         View view = parent.findViewById(id);
         if (view == null) {
@@ -19,7 +22,8 @@ public class Utils {
         return (T) view;
     }
 
-    public static <T> T findAndShowView(@NonNull View parent, int id, @NonNull View.OnClickListener listener) {
+    public static <T> T findAndShowView(@NonNull View parent, int id,
+                                        @NonNull View.OnClickListener listener) {
         View view = findAndShowView(parent, id);
         view.setOnClickListener(listener);
         //noinspection unchecked

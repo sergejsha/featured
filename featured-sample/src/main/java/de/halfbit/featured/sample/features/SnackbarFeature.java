@@ -17,12 +17,15 @@ public class SnackBarFeature extends SampleFeature implements View.OnClickListen
     private View mButton;
 
     @Override
-    protected void onCreate(@NonNull CoordinatorLayout parent, @Nullable Bundle savedInstanceState) {
-        mButton = Utils.findAndShowView(mParent = parent, R.id.snackbar, this);
+    protected void onCreate(@NonNull CoordinatorLayout parent,
+                            @Nullable Bundle savedInstanceState) {
+        mParent = parent;
+        mButton = Utils.findAndShowView(mParent, R.id.snackbar, this);
     }
 
     @Override protected void onFabClicked() {
-        Snackbar.make(mParent, "Hello from SnackBarFeature via FAB click", Snackbar.LENGTH_LONG).show();
+        Snackbar.make(mParent,
+                "Hello from SnackBarFeature via FAB click", Snackbar.LENGTH_LONG).show();
     }
 
     @Override protected void onDestroy() {

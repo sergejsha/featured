@@ -28,7 +28,8 @@ public class LoggerFeature extends SampleFeature {
     private static final String TAG = "featured-sample-logger";
 
     @Override
-    protected void onCreate(@NonNull CoordinatorLayout parent, @Nullable Bundle savedInstanceState) {
+    protected void onCreate(@NonNull CoordinatorLayout parent,
+                            @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
     }
 
