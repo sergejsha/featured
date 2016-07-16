@@ -1,5 +1,5 @@
 # Featured
-splits your activity or fragment code into truly decoupled, testable and maintainable features.
+helps you to split activity or fragment code into truly decoupled, testable and maintainable features.
 
 Features are hosted by a `FeatureHost` which resides in an activity or a fragment. Features communicate to each other through the feature host by means of events as shown in the picture below.
 
@@ -79,7 +79,7 @@ public MyFragment extends Fragment {
 }
 ```
 
-Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. See featured-sample project for more details.
+Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. You can add new features or disable existing features depending on the device configuration etc. See `featured-sample` project for more detail.
 
 # Use with Gradle
 
