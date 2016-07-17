@@ -34,11 +34,7 @@ captures/
 
 # Intellij
 *.iml
-<<<<<<< HEAD
 .idea/
-=======
-.idea/workspace.xml
->>>>>>> b28e49c7827fd1ec02ceccc9064e7b44173b4287
 
 # Keystore files
 *.jks
