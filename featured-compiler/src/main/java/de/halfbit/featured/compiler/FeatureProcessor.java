@@ -20,10 +20,8 @@ import com.google.auto.service.AutoService;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -41,6 +39,7 @@ import javax.lang.model.element.VariableElement;
 import de.halfbit.featured.FeatureEvent;
 import de.halfbit.featured.compiler.model.FeatureNode;
 import de.halfbit.featured.compiler.model.MethodNode;
+import de.halfbit.featured.compiler.model.ModelNode;
 import de.halfbit.featured.compiler.model.ParameterNode;
 
 @AutoService(Processor.class)
@@ -49,14 +48,12 @@ public final class FeatureProcessor extends AbstractProcessor {
     private Filer mFiler;
 
     private FeatureModelValidator mFeatureValidator;
-    private FeatureModelBrewer mFeatureBrewer;
     private Names mNames;
 
     @Override public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
         mFiler = processingEnv.getFiler();
         mNames = new Names(processingEnv.getElementUtils());
-        mFeatureBrewer = new FeatureModelBrewer(mNames);
         mFeatureValidator = new FeatureModelValidator(processingEnv.getMessager(), mNames);
     }
 
@@ -72,7 +69,7 @@ public final class FeatureProcessor extends AbstractProcessor {
 
     @Override public boolean process(Set<? extends TypeElement> anns, RoundEnvironment env) {
 
-        Map<String, FeatureNode> featureElements = new LinkedHashMap<>();
+        ModelNode model = new ModelNode();
 
         // process each @FeatureEvent element
         for (Element element : env.getElementsAnnotatedWith(FeatureEvent.class)) {
@@ -83,10 +80,10 @@ public final class FeatureProcessor extends AbstractProcessor {
                 TypeElement parentElement = (TypeElement) element.getEnclosingElement();
                 String featureName = parentElement.getQualifiedName().toString();
 
-                FeatureNode featureNode = featureElements.get(featureName);
+                FeatureNode featureNode = model.getFeatureNode(featureName);
                 if (featureNode == null) {
                     featureNode = new FeatureNode(parentElement);
-                    featureElements.put(featureName, featureNode);
+                    model.setFeatureNode(featureName, featureNode);
                 }
 
                 ExecutableElement executableElement = (ExecutableElement) element;
@@ -120,28 +117,26 @@ public final class FeatureProcessor extends AbstractProcessor {
             }
         }
 
-        if (featureElements.size() > 0) {
-            Collection<FeatureNode> elements = featureElements.values();
+        // enhance model
+        model.detectInheritance(processingEnv.getTypeUtils());
 
-            // validate elements
-            for (FeatureNode featureNode : elements) {
-                featureNode.accept(mFeatureValidator);
-            }
+        // validate model nodes
+        model.accept(mFeatureValidator);
 
-            // generate source code
-            for (FeatureNode featureNode : elements) {
-                if (featureNode.isValid()) {
-                    featureNode.accept(mFeatureBrewer);
-                    try {
-                        mFeatureBrewer.brewTo(mFiler);
-                    } catch (IOException e) {
-                        TypeElement element = featureNode.getElement();
-                        mFeatureValidator.error(element,
-                                "Unable to generate code for type %s: %s", element, e.getMessage());
-                    }
+        // generate source code
+        FeatureCodeBrewer featureBrewer = new FeatureCodeBrewer(mNames);
+        Collection<FeatureNode> featureNodes = model.getFeatureNodes();
+        for (FeatureNode featureNode : featureNodes) {
+            if (featureNode.isValid()) {
+                featureNode.accept(featureBrewer);
+                try {
+                    featureBrewer.brewTo(mFiler);
+                } catch (IOException e) {
+                    TypeElement element = featureNode.getElement();
+                    mFeatureValidator.error(element,
+                            "Unable to generate code for type %s: %s", element, e.getMessage());
                 }
             }
-
         }
 
         return true;

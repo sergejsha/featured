@@ -19,6 +19,7 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeVariableName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +35,18 @@ import de.halfbit.featured.compiler.model.MethodNode;
 
 public class Names {
 
+    public static final String PACKAGE_NAME = "de.halfbit.featured";
+
     private static final ClassName FEATURE =
-            ClassName.get("de.halfbit.featured", "Feature");
+            ClassName.get(PACKAGE_NAME, "Feature");
     private static final ClassName FEATURE_EVENT =
-            ClassName.get("de.halfbit.featured", "FeatureEvent");
+            ClassName.get(PACKAGE_NAME, "FeatureEvent");
     private static final ClassName FEATURE_HOST =
-            ClassName.get("de.halfbit.featured", "FeatureHost");
+            ClassName.get(PACKAGE_NAME, "FeatureHost");
     private static final ClassName FEATURE_HOST_EVENT =
-            ClassName.get("de.halfbit.featured", "FeatureHost", "Event");
+            ClassName.get(PACKAGE_NAME, "FeatureHost", "Event");
     private static final ClassName FEATURE_HOST_DISPATCH_COMPLETED =
-            ClassName.get("de.halfbit.featured", "FeatureHost", "OnDispatchCompleted");
+            ClassName.get(PACKAGE_NAME, "FeatureHost", "OnDispatchCompleted");
     private static final ClassName CONTEXT =
             ClassName.get("android.content", "Context");
     private static final ClassName NOT_NULL =
@@ -72,9 +75,28 @@ public class Names {
     }
 
     public TypeName getFeatureHostSuperTypeName(FeatureNode featureNode) {
+
+        FeatureNode superFeatureNode = featureNode.getSuperFeatureNode();
+        if (superFeatureNode == null) {
+            if (featureNode.hasInheritingFeatureNodes()) {
+                return ParameterizedTypeName.get(FEATURE_HOST,
+                        TypeVariableName.get("F"), TypeVariableName.get("FH"));
+            }
+
+            ClassName featureType = getFeatureClassName(featureNode);
+            ClassName featureHostType = getFeatureHostClassName(featureNode);
+            return ParameterizedTypeName.get(FEATURE_HOST, featureType, featureHostType);
+        }
+
+        if (featureNode.hasInheritingFeatureNodes()) {
+            return ParameterizedTypeName.get(getFeatureHostClassName(superFeatureNode),
+                    TypeVariableName.get("F"), TypeVariableName.get("FH"));
+        }
+
         ClassName featureType = getFeatureClassName(featureNode);
         ClassName featureHostType = getFeatureHostClassName(featureNode);
-        return ParameterizedTypeName.get(FEATURE_HOST, featureType, featureHostType);
+        return ParameterizedTypeName.get(getFeatureHostClassName(superFeatureNode),
+                featureType, featureHostType);
     }
 
     public ClassName getContextClassName() {

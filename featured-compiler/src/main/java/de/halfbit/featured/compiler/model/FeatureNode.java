@@ -15,6 +15,8 @@
  */
 package de.halfbit.featured.compiler.model;
 
+import android.support.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,7 +28,8 @@ public class FeatureNode {
 
     private final TypeElement mElement;
     private final Map<Name, MethodNode> mMethods = new LinkedHashMap<>();
-
+    private FeatureNode mSuperFeatureNode;
+    private boolean mHasExtendingFeatureNodes;
     private boolean mIsValid;
 
     public FeatureNode(TypeElement element) {
@@ -60,6 +63,23 @@ public class FeatureNode {
             methodElement.accept(visitor);
         }
         visitor.onFeatureExit(this);
+    }
+
+    public void setSuperFeatureNode(FeatureNode superFeatureNode) {
+        mSuperFeatureNode = superFeatureNode;
+        mSuperFeatureNode.setHasInheritingFeatureNodes(true);
+    }
+
+    @Nullable public FeatureNode getSuperFeatureNode() {
+        return mSuperFeatureNode;
+    }
+
+    private void setHasInheritingFeatureNodes(boolean hasExtendingFeatureNodes) {
+        mHasExtendingFeatureNodes = hasExtendingFeatureNodes;
+    }
+
+    public boolean hasInheritingFeatureNodes() {
+        return mHasExtendingFeatureNodes;
     }
 
 }

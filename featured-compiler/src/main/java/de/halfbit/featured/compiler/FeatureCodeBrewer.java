@@ -19,7 +19,9 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 
 import java.io.IOException;
 
@@ -31,11 +33,11 @@ import de.halfbit.featured.compiler.model.MethodNode;
 import de.halfbit.featured.compiler.model.ModelNodeVisitor;
 import de.halfbit.featured.compiler.model.ParameterNode;
 
-public class FeatureModelBrewer implements ModelNodeVisitor {
+public class FeatureCodeBrewer implements ModelNodeVisitor {
 
     private final Names mNames;
 
-    private ClassName mGeneratedClassName;
+    private ClassName mFeatureHostClassName;
     private TypeSpec.Builder mFeatureHostTypeBuilder;
     private ClassName mEventClassName;
     private TypeSpec.Builder mEventTypeBuilder;
@@ -44,24 +46,54 @@ public class FeatureModelBrewer implements ModelNodeVisitor {
     private StringBuilder mListedFields;
     private StringBuilder mListedParams;
 
-    public FeatureModelBrewer(Names names) {
+    public FeatureCodeBrewer(Names names) {
         mNames = names;
     }
 
     @Override public void onFeatureEnter(FeatureNode featureNode) {
-        mGeneratedClassName = mNames.getFeatureHostClassName(featureNode);
-        mFeatureHostTypeBuilder = TypeSpec
-                .classBuilder(mGeneratedClassName.simpleName())
-                .superclass(mNames.getFeatureHostSuperTypeName(featureNode))
-                .addModifiers(Modifier.PUBLIC)
-                .addMethod(MethodSpec.constructorBuilder()
-                        .addModifiers(Modifier.PUBLIC)
-                        .addParameter(ParameterSpec
-                                .builder(mNames.getContextClassName(), "context")
-                                .addAnnotation(mNames.getNonNullClassName())
-                                .build())
-                        .addStatement("super(context)")
-                        .build());
+        mFeatureHostClassName = mNames.getFeatureHostClassName(featureNode);
+
+        // public class FeatureBHost extends FeatureAHost<FeatureB, FeatureBHost> { ...
+
+        // public class FeatureAHost<F extends FeatureA, FH extends FeatureAHost>
+        //                      extends FeatureHost<F, FH> { ...
+
+
+        TypeName superFeatureHostType = mNames.getFeatureHostSuperTypeName(featureNode);
+
+        if (featureNode.hasInheritingFeatureNodes()) {
+
+            mFeatureHostTypeBuilder = TypeSpec
+                    .classBuilder(mFeatureHostClassName.simpleName())
+                    .addTypeVariable(TypeVariableName.get("F", mNames.getFeatureClassName(featureNode)))
+                    .addTypeVariable(TypeVariableName.get("FH", mFeatureHostClassName))
+                    .superclass(superFeatureHostType)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addMethod(MethodSpec.constructorBuilder()
+                            .addModifiers(Modifier.PUBLIC)
+                            .addParameter(ParameterSpec
+                                    .builder(mNames.getContextClassName(), "context")
+                                    .addAnnotation(mNames.getNonNullClassName())
+                                    .build())
+                            .addStatement("super(context)")
+                            .build());
+
+        } else {
+
+            mFeatureHostTypeBuilder = TypeSpec
+                    .classBuilder(mFeatureHostClassName.simpleName())
+                    .superclass(superFeatureHostType)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addMethod(MethodSpec.constructorBuilder()
+                            .addModifiers(Modifier.PUBLIC)
+                            .addParameter(ParameterSpec
+                                    .builder(mNames.getContextClassName(), "context")
+                                    .addAnnotation(mNames.getNonNullClassName())
+                                    .build())
+                            .addStatement("super(context)")
+                            .build());
+        }
+
     }
 
     @Override public void onMethodEnter(MethodNode methodElement) {
@@ -152,7 +184,7 @@ public class FeatureModelBrewer implements ModelNodeVisitor {
 
     public void brewTo(Filer filer) throws IOException {
         JavaFile javaFile = JavaFile
-                .builder(mGeneratedClassName.packageName(), mFeatureHostTypeBuilder.build())
+                .builder(mFeatureHostClassName.packageName(), mFeatureHostTypeBuilder.build())
                 .addFileComment("Featured code. Do not modify!")
                 .skipJavaLangImports(true)
                 .indent("    ")

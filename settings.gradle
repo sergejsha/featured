@@ -1,1 +1,2 @@
-include ':featured', ':featured-annotations', ':featured-compiler', ':featured-sample'
+include ':featured', ':featured-annotations', ':featured-compiler',
+        ':featured-sample', ':featured-sample-library'

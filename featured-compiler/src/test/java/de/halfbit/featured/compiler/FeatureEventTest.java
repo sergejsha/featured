@@ -17,7 +17,6 @@ package de.halfbit.featured.compiler;
 
 import com.google.testing.compile.JavaFileObjects;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.tools.JavaFileObject;
@@ -388,66 +387,65 @@ public class FeatureEventTest {
                 .withErrorContaining("must not be private or static");
     }
 
-    @Ignore // until feature inheritance is properly implemented
     @Test public void checkFeatureInheritance() throws Exception {
 
         JavaFileObject source = JavaFileObjects
-                .forSourceLines("de.halfbit.featured.test.TestFeature",
+                .forSourceLines("de.halfbit.featured.test.TestFeatures",
                         "",
                         "package de.halfbit.featured.test;",
                         "import de.halfbit.featured.FeatureEvent;",
                         "import de.halfbit.featured.Feature;",
                         "",
-                        "class StartFeature extends Feature<StartFeatureHost> {",
-                        "    @FeatureEvent protected void onStart() { }",
+                        "class FeatureA<FH extends FeatureAHost> extends Feature<FH> {",
+                        "    @FeatureEvent protected void onMessageA() { }",
                         "}",
                         "",
-                        "class StopFeature extends StartFeature {",
-                        "    @FeatureEvent protected void onStop() { }",
+                        "class FeatureB extends FeatureA<FeatureBHost> {",
+                        "    @FeatureEvent protected void onMessageB() { }",
                         "}"
                 );
 
-        JavaFileObject expectedStartFeatureHost = JavaFileObjects
-                .forSourceLines("de.halfbit.featured.test.StartFeatureHost",
+        JavaFileObject expectedFeatureHostA = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.FeatureAHost",
                         "",
                         "package de.halfbit.featured.test;",
                         "import android.content.Context;",
                         "import android.support.annotation.NonNull;",
                         "import de.halfbit.featured.FeatureHost;",
                         "",
-                        "public class StartFeatureHost<F extends StartFeature, FH extends StartFeatureHost> extends FeatureHost<F, FH> {",
-                        "    public StartFeatureHost(@NonNull Context context) {",
+                        "public class FeatureAHost<F extends FeatureA, FH extends FeatureAHost> extends FeatureHost<F, FH> {",
+                        "    public FeatureHostA(@NonNull Context context) {",
                         "        super(context);",
                         "    }",
-                        "    public void dispatchOnStart() {",
-                        "        dispatch(new OnStartEvent());",
+                        "    public void dispatchOnMessageA() {",
+                        "        dispatch(new OnMessageAEvent());",
                         "    }",
-                        "    private static final class OnStartEvent extends FeatureHost.Event<StartFeature> {",
-                        "        @Override protected void dispatch(StartFeature feature) {",
-                        "            feature.onStart();",
+                        "    private static final class OnMessageAEvent extends FeatureHost.Event<FeatureA> {",
+                        "        @Override protected void dispatch(FeatureA feature) {",
+                        "            feature.onMessageA();",
                         "        }",
                         "    }",
                         "}"
                 );
 
-        JavaFileObject expectedStopFeatureHost = JavaFileObjects
-                .forSourceLines("de.halfbit.featured.test.StopFeatureHost",
+        JavaFileObject expectedFeatureHostB = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.FeatureBHost",
                         "",
                         "package de.halfbit.featured.test;",
                         "import android.content.Context;",
                         "import android.support.annotation.NonNull;",
                         "import de.halfbit.featured.FeatureHost;",
                         "",
-                        "public class StopFeatureHost extends StartFeatureHost<StopFeature, StopFeatureHost> {",
-                        "    public StopFeatureHost(@NonNull Context context) {",
+                        "public class FeatureBHost extends FeatureAHost<FeatureB, FeatureBHost> {",
+                        "    public FeatureBHost(@NonNull Context context) {",
                         "        super(context);",
                         "    }",
-                        "    public void dispatchOnStop() {",
-                        "        dispatch(new OnStopEvent());",
+                        "    public void dispatchOnMessageB() {",
+                        "        dispatch(new OnMessageBEvent());",
                         "    }",
-                        "    private static final class OnStopEvent extends FeatureHost.Event<StopFeature> {",
-                        "        @Override protected void dispatch(StopFeature feature) {",
-                        "            feature.onStop();",
+                        "    private static final class OnMessageBEvent extends FeatureHost.Event<FeatureB> {",
+                        "        @Override protected void dispatch(FeatureB feature) {",
+                        "            feature.onMessageB();",
                         "        }",
                         "    }",
                         "}"
@@ -457,7 +455,7 @@ public class FeatureEventTest {
                 .processedWith(new FeatureProcessor())
                 .compilesWithoutError()
                 .and()
-                .generatesSources(expectedStartFeatureHost, expectedStopFeatureHost);
+                .generatesSources(expectedFeatureHostA, expectedFeatureHostB);
 
     }
 
