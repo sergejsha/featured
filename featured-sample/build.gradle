@@ -33,6 +33,7 @@ android {
 dependencies {
     apt project(':featured-compiler')
     compile project(':featured')
+    compile project(':featured-sample-library')
 
 //    apt "de.halfbit:featured-compiler:0.0.1"
 //    compile "de.halfbit:featured:0.0.1"

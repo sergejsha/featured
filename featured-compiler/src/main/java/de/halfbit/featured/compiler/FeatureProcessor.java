@@ -82,8 +82,8 @@ public final class FeatureProcessor extends AbstractProcessor {
 
                 FeatureNode featureNode = model.getFeatureNode(featureName);
                 if (featureNode == null) {
-                    featureNode = new FeatureNode(parentElement);
-                    model.setFeatureNode(featureName, featureNode);
+                    featureNode = new FeatureNode(featureName, parentElement);
+                    model.putFeatureNode(featureNode);
                 }
 
                 ExecutableElement executableElement = (ExecutableElement) element;
@@ -117,8 +117,12 @@ public final class FeatureProcessor extends AbstractProcessor {
             }
         }
 
+        // Add feature nodes coming from library. They are not annotated but must be
+        // present in the model for proper generation of feature hosts.
+        model.detectLibraryFeatures(processingEnv, mNames);
+
         // enhance model
-        model.detectInheritance(processingEnv.getTypeUtils());
+        model.detectInheritance(processingEnv);
 
         // validate model nodes
         model.accept(mFeatureValidator);
@@ -127,7 +131,7 @@ public final class FeatureProcessor extends AbstractProcessor {
         FeatureCodeBrewer featureBrewer = new FeatureCodeBrewer(mNames);
         Collection<FeatureNode> featureNodes = model.getFeatureNodes();
         for (FeatureNode featureNode : featureNodes) {
-            if (featureNode.isValid()) {
+            if (featureNode.isValid() && !featureNode.isLibraryNode()) {
                 featureNode.accept(featureBrewer);
                 try {
                     featureBrewer.brewTo(mFiler);

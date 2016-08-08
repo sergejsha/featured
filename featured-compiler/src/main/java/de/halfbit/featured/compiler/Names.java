@@ -75,28 +75,18 @@ public class Names {
     }
 
     public TypeName getFeatureHostSuperTypeName(FeatureNode featureNode) {
-
         FeatureNode superFeatureNode = featureNode.getSuperFeatureNode();
-        if (superFeatureNode == null) {
-            if (featureNode.hasInheritingFeatureNodes()) {
-                return ParameterizedTypeName.get(FEATURE_HOST,
-                        TypeVariableName.get("F"), TypeVariableName.get("FH"));
-            }
-
-            ClassName featureType = getFeatureClassName(featureNode);
-            ClassName featureHostType = getFeatureHostClassName(featureNode);
-            return ParameterizedTypeName.get(FEATURE_HOST, featureType, featureHostType);
-        }
+        ClassName featureHostClass = superFeatureNode == null
+                ? FEATURE_HOST : getFeatureHostClassName(superFeatureNode);
 
         if (featureNode.hasInheritingFeatureNodes()) {
-            return ParameterizedTypeName.get(getFeatureHostClassName(superFeatureNode),
+            return ParameterizedTypeName.get(featureHostClass,
                     TypeVariableName.get("F"), TypeVariableName.get("FH"));
         }
 
         ClassName featureType = getFeatureClassName(featureNode);
         ClassName featureHostType = getFeatureHostClassName(featureNode);
-        return ParameterizedTypeName.get(getFeatureHostClassName(superFeatureNode),
-                featureType, featureHostType);
+        return ParameterizedTypeName.get(featureHostClass, featureType, featureHostType);
     }
 
     public ClassName getContextClassName() {

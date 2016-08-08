@@ -43,7 +43,7 @@ public class FeatureModelValidator implements ModelNodeVisitor {
         mNames = names;
     }
 
-    @Override public void onFeatureEnter(FeatureNode featureNode) {
+    @Override public boolean onFeatureEnter(FeatureNode featureNode) {
         featureNode.setValid(true);
 
         // verify extends Feature<?> class
@@ -54,6 +54,8 @@ public class FeatureModelValidator implements ModelNodeVisitor {
                     "%s must inherit from %s.", element.getQualifiedName(),
                     mNames.getFeatureSuperTypeName(featureNode).toString());
         }
+
+        return true;
     }
 
     @Override public void onMethodEnter(MethodNode methodElement) {

@@ -459,4 +459,115 @@ public class FeatureEventTest {
 
     }
 
+    @Test public void checkFeatureInheritanceFeatureWithGenerics() throws Exception {
+
+        JavaFileObject source = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.TestFeatures",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "import de.halfbit.featured.FeatureEvent;",
+                        "import de.halfbit.featured.Feature;",
+                        "",
+                        "class FeatureA<FH extends FeatureAHost> extends Feature<FH> {",
+                        "    @FeatureEvent protected void onMessageA() { }",
+                        "}"
+                );
+
+        JavaFileObject expectedFeatureHostA = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.FeatureAHost",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "import android.content.Context;",
+                        "import android.support.annotation.NonNull;",
+                        "import de.halfbit.featured.FeatureHost;",
+                        "",
+                        "public class FeatureAHost<F extends FeatureA, FH extends FeatureAHost> extends FeatureHost<F, FH> {",
+                        "    public FeatureHostA(@NonNull Context context) {",
+                        "        super(context);",
+                        "    }",
+                        "    public void dispatchOnMessageA() {",
+                        "        dispatch(new OnMessageAEvent());",
+                        "    }",
+                        "    private static final class OnMessageAEvent extends FeatureHost.Event<FeatureA> {",
+                        "        @Override protected void dispatch(FeatureA feature) {",
+                        "            feature.onMessageA();",
+                        "        }",
+                        "    }",
+                        "}"
+                );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new FeatureProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expectedFeatureHostA);
+
+    }
+
+    @Test public void checkFeatureInheritanceFeatureInLibrary() throws Exception {
+
+        // This is the case, when base feature has been defined in library
+        // and used in the app. In this case processor won't be able analyse
+        // base features' annotations.
+
+        JavaFileObject source = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.TestFeatures",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "import android.content.Context;",
+                        "import android.support.annotation.NonNull;",
+                        "import de.halfbit.featured.FeatureEvent;",
+                        "import de.halfbit.featured.Feature;",
+                        "import de.halfbit.featured.FeatureHost;",
+
+                        // this feature and its host are given (part of a library)
+
+                        "class FeatureA<FH extends FeatureAHost> extends Feature<FH> {",
+                        "    protected void onMessageA() { }",
+                        "}",
+                        "",
+                        "class FeatureAHost<F extends FeatureA, FH extends FeatureAHost> extends FeatureHost<F, FH> {",
+                        "    public FeatureAHost(@NonNull Context context) {",
+                        "        super(context);",
+                        "    }",
+                        "}",
+
+                        // this feature needs to be processed and host needs to be generated
+
+                        "class FeatureB extends FeatureA<FeatureBHost> {",
+                        "    @FeatureEvent protected void onMessageB() { }",
+                        "}"
+                );
+
+        JavaFileObject expectedFeatureHostA = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.FeatureAHost",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "import android.content.Context;",
+                        "import android.support.annotation.NonNull;",
+                        "import de.halfbit.featured.FeatureHost;",
+                        "",
+                        "public class FeatureBHost extends FeatureAHost<FeatureB, FeatureBHost> {",
+                        "    public FeatureBHost(@NonNull Context context) {",
+                        "        super(context);",
+                        "    }",
+                        "    public void dispatchOnMessageB() {",
+                        "        dispatch(new OnMessageBEvent());",
+                        "    }",
+                        "    private static final class OnMessageBEvent extends FeatureHost.Event<FeatureB> {",
+                        "        @Override protected void dispatch(FeatureB feature) {",
+                        "            feature.onMessageB();",
+                        "        }",
+                        "    }",
+                        "}"
+                );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new FeatureProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expectedFeatureHostA);
+
+    }
+
 }

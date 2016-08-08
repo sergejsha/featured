@@ -50,7 +50,11 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
         mNames = names;
     }
 
-    @Override public void onFeatureEnter(FeatureNode featureNode) {
+    @Override public boolean onFeatureEnter(FeatureNode featureNode) {
+        if (featureNode.isLibraryNode()) {
+            return false;
+        }
+
         mFeatureHostClassName = mNames.getFeatureHostClassName(featureNode);
 
         // public class FeatureBHost extends FeatureAHost<FeatureB, FeatureBHost> { ...
@@ -94,6 +98,7 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
                             .build());
         }
 
+        return true;
     }
 
     @Override public void onMethodEnter(MethodNode methodElement) {

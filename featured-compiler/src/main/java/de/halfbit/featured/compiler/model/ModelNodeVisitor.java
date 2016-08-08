@@ -16,7 +16,7 @@
 package de.halfbit.featured.compiler.model;
 
 public interface ModelNodeVisitor {
-    void onFeatureEnter(FeatureNode feature);
+    boolean onFeatureEnter(FeatureNode feature);
     void onMethodEnter(MethodNode method);
     void onParameter(ParameterNode param);
     void onMethodExit(MethodNode method);

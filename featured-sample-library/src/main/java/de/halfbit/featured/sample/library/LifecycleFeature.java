@@ -5,10 +5,11 @@ import de.halfbit.featured.FeatureEvent;
 
 /**
  * This is a base lifecycle feature defined in a library. It can be used
- * in multiple project. Just import the library and extend this feature
- * to get access to its callbacks.
+ * in other project. Just import the library and extend this feature
+ * to get access to its callbacks. See how it is done in {@code SampleLibraryFeature}
+ * in featured-sample.
  */
-public class LifecycleFeature extends Feature<LifecycleFeatureHost> {
+public class LifecycleFeature<FH extends LifecycleFeatureHost> extends Feature<FH> {
 
     @FeatureEvent
     public void onCreate() {
