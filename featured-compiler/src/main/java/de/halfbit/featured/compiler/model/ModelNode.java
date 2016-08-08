@@ -48,7 +48,8 @@ public class ModelNode {
         for (FeatureNode featureNode : featureNodes) {
 
             // feature has inheriting features if it is parametried with generics
-            List<? extends TypeParameterElement> typeParams = featureNode.getElement().getTypeParameters();
+            List<? extends TypeParameterElement> typeParams =
+                    featureNode.getElement().getTypeParameters();
             if (typeParams.size() > 0) {
                 featureNode.setHasInheritingFeatureNodes(true);
                 continue;
@@ -62,7 +63,8 @@ public class ModelNode {
                         continue;
                     }
                     Name otherName = otherFeatureNode.getElement().getQualifiedName();
-                    Name superName = ((TypeElement) env.getTypeUtils().asElement(superType)).getQualifiedName();
+                    Name superName = ((TypeElement) env.getTypeUtils()
+                            .asElement(superType)).getQualifiedName();
                     if (otherName.equals(superName)) {
                         featureNode.setSuperFeatureNode(otherFeatureNode);
                         break;
@@ -96,7 +98,8 @@ public class ModelNode {
 
             if (env.getTypeUtils().isSubtype(superType, featureType)) {
                 // create library node
-                TypeElement superTypeElement = (TypeElement) env.getTypeUtils().asElement(superType);
+                TypeElement superTypeElement = (TypeElement)
+                        env.getTypeUtils().asElement(superType);
                 String name = superTypeElement.getQualifiedName().toString();
                 FeatureNode node = new FeatureNode(name, superTypeElement, true);
                 putFeatureNode(node);

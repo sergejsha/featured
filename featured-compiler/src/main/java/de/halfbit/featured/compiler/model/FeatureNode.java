@@ -67,8 +67,8 @@ public class FeatureNode {
     }
 
     public void accept(ModelNodeVisitor visitor) {
-        boolean _continue = visitor.onFeatureEnter(this);
-        if (!_continue) {
+        boolean doNext = visitor.onFeatureEnter(this);
+        if (!doNext) {
             return;
         }
         Collection<MethodNode> methodElements = mMethods.values();

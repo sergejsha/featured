@@ -65,7 +65,8 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
 
             mFeatureHostTypeBuilder = TypeSpec
                     .classBuilder(mFeatureHostClassName.simpleName())
-                    .addTypeVariable(TypeVariableName.get("F", mNames.getFeatureClassName(featureNode)))
+                    .addTypeVariable(TypeVariableName.get("F",
+                            mNames.getFeatureClassName(featureNode)))
                     .addTypeVariable(TypeVariableName.get("FH", mFeatureHostClassName))
                     .superclass(superFeatureHostType)
                     .addModifiers(Modifier.PUBLIC)
