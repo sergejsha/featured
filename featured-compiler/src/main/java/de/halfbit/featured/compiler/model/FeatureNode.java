@@ -29,14 +29,21 @@ public class FeatureNode {
     private final TypeElement mElement;
     private final Map<Name, MethodNode> mMethods = new LinkedHashMap<>();
     private final String mName;
+    private final boolean mIsLibraryNode;
     private FeatureNode mSuperFeatureNode;
     private boolean mHasExtendingFeatureNodes;
     private boolean mIsValid;
-    private boolean mIsLibraryNode;
 
     public FeatureNode(String featureName, TypeElement element) {
         mName = featureName;
         mElement = element;
+        mIsLibraryNode = false;
+    }
+
+    public FeatureNode(String featureName, TypeElement element, boolean isLibraryNode) {
+        mName = featureName;
+        mElement = element;
+        mIsLibraryNode = isLibraryNode;
     }
 
     public boolean hasMethod(Name name) {
@@ -60,8 +67,8 @@ public class FeatureNode {
     }
 
     public void accept(ModelNodeVisitor visitor) {
-        boolean donext = visitor.onFeatureEnter(this);
-        if (!donext) {
+        boolean _continue = visitor.onFeatureEnter(this);
+        if (!_continue) {
             return;
         }
         Collection<MethodNode> methodElements = mMethods.values();
@@ -86,10 +93,6 @@ public class FeatureNode {
 
     public boolean hasInheritingFeatureNodes() {
         return mHasExtendingFeatureNodes;
-    }
-
-    public void setLibraryNode(boolean libraryNode) {
-        mIsLibraryNode = libraryNode;
     }
 
     public boolean isLibraryNode() {

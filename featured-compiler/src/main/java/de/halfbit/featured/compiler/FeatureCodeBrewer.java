@@ -57,15 +57,11 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
 
         mFeatureHostClassName = mNames.getFeatureHostClassName(featureNode);
 
-        // public class FeatureBHost extends FeatureAHost<FeatureB, FeatureBHost> { ...
-
-        // public class FeatureAHost<F extends FeatureA, FH extends FeatureAHost>
-        //                      extends FeatureHost<F, FH> { ...
-
-
         TypeName superFeatureHostType = mNames.getFeatureHostSuperTypeName(featureNode);
 
         if (featureNode.hasInheritingFeatureNodes()) {
+            // public class FeatureAHost<F extends FeatureA, FH extends FeatureAHost>
+            //                      extends FeatureHost<F, FH> { ...
 
             mFeatureHostTypeBuilder = TypeSpec
                     .classBuilder(mFeatureHostClassName.simpleName())
@@ -83,6 +79,7 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
                             .build());
 
         } else {
+            // public class FeatureBHost extends FeatureAHost<FeatureB, FeatureBHost> { ...
 
             mFeatureHostTypeBuilder = TypeSpec
                     .classBuilder(mFeatureHostClassName.simpleName())

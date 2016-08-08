@@ -98,8 +98,7 @@ public class ModelNode {
                 // create library node
                 TypeElement superTypeElement = (TypeElement) env.getTypeUtils().asElement(superType);
                 String name = superTypeElement.getQualifiedName().toString();
-                FeatureNode node = new FeatureNode(name, superTypeElement);
-                node.setLibraryNode(true);
+                FeatureNode node = new FeatureNode(name, superTypeElement, true);
                 putFeatureNode(node);
             }
         }
