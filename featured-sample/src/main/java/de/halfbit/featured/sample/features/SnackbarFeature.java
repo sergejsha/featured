@@ -11,7 +11,7 @@ import de.halfbit.featured.sample.R;
 import de.halfbit.featured.sample.SampleFeature;
 import de.halfbit.featured.sample.util.Utils;
 
-public class SnackBarFeature extends SampleFeature implements View.OnClickListener {
+public class SnackbarFeature extends SampleFeature implements View.OnClickListener {
 
     private CoordinatorLayout mParent;
     private View mButton;

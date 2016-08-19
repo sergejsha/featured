@@ -14,8 +14,8 @@ android {
         applicationId 'de.halfbit.featured'
         minSdkVersion 11
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName '1.0.0'
+        versionCode 3
+        versionName '0.0.3'
     }
 
     lintOptions {
@@ -34,9 +34,6 @@ dependencies {
     apt project(':featured-compiler')
     compile project(':featured')
     compile project(':featured-sample-library')
-
-//    apt "de.halfbit:featured-compiler:0.0.1"
-//    compile "de.halfbit:featured:0.0.1"
 
     compile deps.supportAppCompat
     compile deps.supportDesign

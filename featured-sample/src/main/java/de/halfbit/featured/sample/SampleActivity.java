@@ -21,7 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import de.halfbit.featured.sample.features.FabFeature;
 import de.halfbit.featured.sample.features.LoggerFeature;
-import de.halfbit.featured.sample.features.SnackBarFeature;
+import de.halfbit.featured.sample.features.SnackbarFeature;
 import de.halfbit.featured.sample.features.ToastFeature;
 import de.halfbit.featured.sample.features.ToolbarFeature;
 
@@ -37,7 +37,7 @@ public class SampleActivity extends AppCompatActivity {
         mFeatureHost = new SampleFeatureHost(this)
                 .with(new LoggerFeature())
                 .with(new ToolbarFeature())
-                .with(new SnackBarFeature())
+                .with(new SnackbarFeature())
                 .with(new ToastFeature())
                 .with(new FabFeature());
 
