@@ -1,5 +1,5 @@
-apply plugin: 'java'
 apply plugin: 'checkstyle'
+apply plugin: 'java'
 
 sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
 targetCompatibility = rootProject.ext.targetCompatibilityVersion

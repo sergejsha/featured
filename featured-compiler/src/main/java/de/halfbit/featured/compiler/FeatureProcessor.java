@@ -53,7 +53,7 @@ public final class FeatureProcessor extends AbstractProcessor {
     @Override public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
         mFiler = processingEnv.getFiler();
-        mNames = new Names(processingEnv.getElementUtils());
+        mNames = new Names(processingEnv.getElementUtils(), processingEnv.getTypeUtils());
         mFeatureValidator = new FeatureModelValidator(processingEnv.getMessager(), mNames);
     }
 

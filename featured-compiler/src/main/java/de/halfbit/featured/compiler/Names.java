@@ -25,10 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 import de.halfbit.featured.compiler.model.FeatureNode;
 import de.halfbit.featured.compiler.model.MethodNode;
@@ -54,10 +60,15 @@ public class Names {
     private static final ClassName OVERRIDE =
             ClassName.get("java.lang", "Override");
 
-    private final Elements mElementUtils;
+    private static final int HOST_PARAMETER_INDEX = 0;
+    private static final int CONTEXT_PARAMETER_INDEX = 1;
 
-    public Names(Elements elementUtils) {
+    private final Elements mElementUtils;
+    private final Types mTypeUtils;
+
+    public Names(Elements elementUtils, Types typeUtils) {
         mElementUtils = elementUtils;
+        mTypeUtils = typeUtils;
     }
 
     private String getPackageName(TypeElement type) {
@@ -74,23 +85,53 @@ public class Names {
         return ClassName.get(getPackageName(element), element.getSimpleName().toString() + "Host");
     }
 
-    public TypeName getFeatureHostSuperTypeName(FeatureNode featureNode) {
-        FeatureNode superFeatureNode = featureNode.getSuperFeatureNode();
-        ClassName featureHostClass = superFeatureNode == null
-                ? FEATURE_HOST : getFeatureHostClassName(superFeatureNode);
-
-        if (featureNode.hasInheritingFeatureNodes()) {
-            return ParameterizedTypeName.get(featureHostClass,
-                    TypeVariableName.get("F"), TypeVariableName.get("FH"));
-        }
-
-        ClassName featureType = getFeatureClassName(featureNode);
-        ClassName featureHostType = getFeatureHostClassName(featureNode);
-        return ParameterizedTypeName.get(featureHostClass, featureType, featureHostType);
+    public ClassName getFeatureContextSuperClassName(FeatureNode featureNode) {
+        return getFeatureParameterClass(featureNode, CONTEXT_PARAMETER_INDEX);
     }
 
-    public ClassName getContextClassName() {
-        return CONTEXT;
+    private ClassName getFeatureParameterClass(FeatureNode featureNode, int parameterIndex) {
+        TypeMirror superClass = featureNode.getElement().getSuperclass();
+        if (superClass.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException(
+                    "Check model validator. It must check feature super class.");
+        }
+
+        Element argElem = getFeatureParameterElement((DeclaredType) superClass, parameterIndex);
+        if (argElem == null || argElem.getKind() == ElementKind.TYPE_PARAMETER) {
+            return null;
+        }
+        return ClassName.get((TypeElement) argElem);
+    }
+
+    public Element getFeatureParameterElement(DeclaredType clazz, int parameterIndex) {
+        List<? extends TypeMirror> args = clazz.getTypeArguments();
+        if (args.size() < 2) {
+            throw new IllegalArgumentException("Check model validator. " +
+                    "It must has already checked number of parameters in feature super class.");
+        }
+
+        return mTypeUtils.asElement(args.get(parameterIndex));
+    }
+
+    public TypeVariableName getFeatureContextTypeVariableName(FeatureNode featureNode) {
+        return getParameterTypeVariableName(featureNode, CONTEXT_PARAMETER_INDEX);
+    }
+
+    public TypeVariableName getFeatureHostTypeVariableName(FeatureNode featureNode) {
+        return getParameterTypeVariableName(featureNode, HOST_PARAMETER_INDEX);
+    }
+
+    private TypeVariableName getParameterTypeVariableName(FeatureNode featureNode, int parameterIndex) {
+        TypeMirror type = featureNode.getElement().asType();
+        if (type.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException("FeatureNode type is not supported: " + featureNode);
+        }
+        Element paramElem = getFeatureParameterElement((DeclaredType) type, parameterIndex);
+        if (paramElem.getKind() == ElementKind.TYPE_PARAMETER) {
+            return TypeVariableName.get((TypeVariable) paramElem.asType());
+        }
+        throw new IllegalArgumentException(
+                "Expecting paramElem of kind TYPE_PARAMETER, while received" + paramElem);
     }
 
     public ClassName getNonNullClassName() {
@@ -129,8 +170,7 @@ public class Names {
     }
 
     public TypeName getEventSuperClassName(MethodNode methodElement) {
-        ClassName featureType = getFeatureClassName(methodElement.getParent());
-        return ParameterizedTypeName.get(FEATURE_HOST_EVENT, featureType);
+        return FEATURE_HOST_EVENT;
     }
 
     public String getFeatureMethodName(MethodNode methodElement) {
@@ -140,6 +180,53 @@ public class Names {
     public TypeName getFeatureSuperTypeName(FeatureNode featureNode) {
         ClassName featureHostClass = getFeatureHostClassName(featureNode);
         return ParameterizedTypeName.get(FEATURE, featureHostClass);
+    }
+
+    public TypeName getFeatureHostSuperTypeName(FeatureNode featureNode) {
+
+        // public class FeatureA extends Feature<FeatureAHost, Context> {
+        // public class FeatureA<FH extends FeatureAHost, C extends Context> extends Feature<FH, C> {
+        // public class FeatureB extends FeatureA<FeatureBHost, Context> {
+
+        TypeMirror superType = featureNode.getElement().getSuperclass();
+        if (superType.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException();
+        }
+
+        TypeName hostTypeName = getFeatureParameterTypeVariableName(
+                (DeclaredType) superType, HOST_PARAMETER_INDEX);
+
+        TypeName contextTypeName = getFeatureParameterTypeVariableName(
+                (DeclaredType) superType, CONTEXT_PARAMETER_INDEX);
+
+        FeatureNode superFeatureNode = featureNode.getSuperFeatureNode();
+        if (superFeatureNode == null) {
+            DeclaredType declaredType = (DeclaredType) superType;
+            TypeName featureClassName = ClassName.get(declaredType.asElement().asType());
+            if (featureClassName instanceof ParameterizedTypeName) {
+                ParameterizedTypeName ptn = (ParameterizedTypeName) featureClassName;
+                ClassName featureHostClass = ClassName.get(
+                        ptn.rawType.packageName(), ptn.rawType.simpleName() + "Host");
+                return ParameterizedTypeName.get(featureHostClass, hostTypeName, contextTypeName);
+            }
+        }
+
+        ClassName featureHostClass = superFeatureNode == null
+                ? FEATURE_HOST : getFeatureHostClassName(superFeatureNode);
+
+        return ParameterizedTypeName.get(featureHostClass, hostTypeName, contextTypeName);
+    }
+
+    private TypeName getFeatureParameterTypeVariableName(DeclaredType featureType,
+                                                         int featureParameterIndex) {
+        Element paramElem = getFeatureParameterElement(featureType, featureParameterIndex);
+        if (paramElem.getKind() == ElementKind.TYPE_PARAMETER) {
+            return TypeVariableName.get((TypeVariable) paramElem.asType());
+        } else if (paramElem.getKind() == ElementKind.CLASS) {
+            return TypeName.get(paramElem.asType());
+        }
+        throw new IllegalArgumentException(
+                "Expecting paramElem of kind TYPE_PARAMETER or CLASS, while received " + paramElem);
     }
 
     public TypeName getTypeNameByKind(VariableElement param) {

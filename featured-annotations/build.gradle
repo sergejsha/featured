@@ -23,7 +23,7 @@ configurations {
 }
 
 dependencies {
-    provided deps.android
+    //provided deps.android
     compile deps.supportAnnotations
 }
 

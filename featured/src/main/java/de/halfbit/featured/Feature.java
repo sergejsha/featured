@@ -91,16 +91,29 @@ import android.support.annotation.NonNull;
  * @author sergej shafarenka
  * @see FeatureHost
  */
-public abstract class Feature<FH extends FeatureHost> {
+public abstract class Feature<FH extends FeatureHost, C> {
 
     private FH mFeatureHost;
+
+    @NonNull protected C getContext() {
+        assertFeatureHostAttached();
+        //noinspection unchecked
+        return (C) mFeatureHost.getContext();
+    }
 
     void attachFeatureHost(FH featureHost) {
         mFeatureHost = featureHost;
     }
 
     @NonNull protected FH getFeatureHost() {
+        assertFeatureHostAttached();
         return mFeatureHost;
+    }
+
+    private void assertFeatureHostAttached() {
+        if (mFeatureHost == null) {
+            throw new IllegalStateException("FeatureHost is not attached");
+        }
     }
 
 }
