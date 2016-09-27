@@ -35,8 +35,8 @@ android {
 }
 
 dependencies {
-    apt "de.halfbit:featured-compiler:0.1.0"
-    compile "de.halfbit:featured:0.1.0"
+    apt 'de.halfbit:featured-compiler:0.1.0'
+    compile 'de.halfbit:featured:0.1.0'
 }
 ```
 
