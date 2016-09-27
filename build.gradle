@@ -4,6 +4,7 @@ subprojects { project ->
 
     repositories {
         mavenCentral()
+        //jcenter()
     }
 
     apply plugin: 'checkstyle'
@@ -26,7 +27,7 @@ subprojects { project ->
 
     buildscript {
         repositories {
-            mavenCentral()
+            jcenter()
         }
         dependencies {
             classpath 'com.android.tools.build:gradle:2.2.0'
@@ -39,7 +40,7 @@ ext {
     minSdkVersion = 9
     targetSdkVersion = 24
     compileSdkVersion = 24
-    buildToolsVersion = '24.0.1'
+    buildToolsVersion = '24.0.2'
     sourceCompatibilityVersion = JavaVersion.VERSION_1_7
     targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
@@ -48,10 +49,10 @@ ext.deps = [:]
 
 // android
 ext.deps.android = 'com.google.android:android:2.1.2'
-ext.deps.supportv4 = 'com.android.support:support-v4:24.2.0'
-ext.deps.supportAnnotations = 'com.android.support:support-annotations:24.2.0'
-ext.deps.supportAppCompat = 'com.android.support:appcompat-v7:24.2.0'
-ext.deps.supportDesign = 'com.android.support:design:24.2.0'
+ext.deps.supportv4 = 'com.android.support:support-v4:24.2.1'
+ext.deps.supportAnnotations = 'com.android.support:support-annotations:24.2.1'
+ext.deps.supportAppCompat = 'com.android.support:appcompat-v7:24.2.1'
+ext.deps.supportDesign = 'com.android.support:design:24.2.1'
 
 // open source
 ext.deps.javapoet = 'com.squareup:javapoet:1.7.0'
