@@ -92,7 +92,8 @@ public class Names {
             throw new IllegalArgumentException();
         }
 
-        TypeName featureHostName = getFeatureParameterTypeVariableName((DeclaredType) superType, HOST_PARAMETER_INDEX);
+        TypeName featureHostName = getFeatureParameterTypeVariableName(
+                (DeclaredType) superType, HOST_PARAMETER_INDEX);
         ClassName featureHostClassName = null;
 
         if (featureHostName instanceof ClassName) {
@@ -107,7 +108,8 @@ public class Names {
                 throw new IllegalArgumentException("Missing feature host parameter. \n"
                         + featureNode + "\n" + featureHostVariableTypeName);
             }
-            TypeName featureHostTypeName = featureHostVariableTypeName.bounds.get(HOST_PARAMETER_INDEX);
+            TypeName featureHostTypeName = featureHostVariableTypeName.bounds
+                    .get(HOST_PARAMETER_INDEX);
             if (featureHostTypeName instanceof ClassName) {
                 featureHostClassName = (ClassName) featureHostTypeName;
             }
@@ -156,7 +158,8 @@ public class Names {
         return getParameterTypeVariableName(featureNode, HOST_PARAMETER_INDEX);
     }
 
-    private TypeVariableName getParameterTypeVariableName(FeatureNode featureNode, int parameterIndex) {
+    private TypeVariableName getParameterTypeVariableName(FeatureNode featureNode,
+                                                          int parameterIndex) {
         TypeMirror type = featureNode.getElement().asType();
         if (type.getKind() != TypeKind.DECLARED) {
             throw new IllegalArgumentException("FeatureNode type is not supported: " + featureNode);
@@ -219,14 +222,15 @@ public class Names {
     public TypeName getSuggestedSuperFeatureTypeName(FeatureNode featureNode) {
         String featureHostPackage = getPackageName(featureNode.getElement());
         String featureHostName = featureNode.getName() + "Host";
-        ClassName suggestedFeatureHostClassName = ClassName.get(featureHostPackage, featureHostName);
+        ClassName suggestedFeatureHostClassName = ClassName
+                .get(featureHostPackage, featureHostName);
         return ParameterizedTypeName.get(FEATURE, suggestedFeatureHostClassName, CONTEXT);
     }
 
     public TypeName getFeatureHostSuperTypeName(FeatureNode featureNode) {
 
         // public class FeatureA extends Feature<FeatureAHost, Context> {
-        // public class FeatureA<FH extends FeatureAHost, C extends Context> extends Feature<FH, C> {
+        // public class FeatureA<FH extends FeatureAHost, C extends App> extends Feature<FH, C> {
         // public class FeatureB extends FeatureA<FeatureBHost, Context> {
 
         TypeMirror superType = featureNode.getElement().getSuperclass();

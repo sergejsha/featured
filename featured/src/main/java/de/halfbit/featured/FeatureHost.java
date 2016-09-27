@@ -86,9 +86,9 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
         Feature registeredFeature = mFeatures.put(featureName, feature);
         if (registeredFeature != null) {
             throw new IllegalArgumentException(
-                    String.format("There is already a feature %s registered with name %s. " +
-                            "Use different feature name if you want to register same feature " +
-                            "class multiple times.", registeredFeature, featureName));
+                    String.format("There is already a feature %s registered with name %s. "
+                            + "Use different feature name if you want to register same feature "
+                            + "class multiple times.", registeredFeature, featureName));
         }
 
         feature.attachFeatureHost(this);
@@ -107,7 +107,8 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
     }
 
     @Nullable
-    public <F extends Feature> F getFeature(@NonNull Class<F> featureClass, @NonNull String featureName) {
+    public <F extends Feature> F getFeature(@NonNull Class<F> featureClass,
+                                            @NonNull String featureName) {
         //noinspection unchecked
         return (F) mFeatures.get(featureName);
     }

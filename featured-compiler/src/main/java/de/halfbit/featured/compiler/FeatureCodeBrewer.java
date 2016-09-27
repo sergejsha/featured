@@ -131,13 +131,16 @@ class FeatureCodeBrewer implements ModelNodeVisitor {
                         .addMethod(MethodSpec.methodBuilder("dispatch")
                                 .addModifiers(Modifier.PROTECTED)
                                 .addAnnotation(mNames.getOverrideClassName())
-                                .addParameter(ParameterSpec.builder(mNames.getFeatureClassName(), "feature")
+                                .addParameter(ParameterSpec
+                                        .builder(mNames.getFeatureClassName(), "feature")
                                         .addAnnotation(mNames.getNonNullClassName())
                                         .build())
                                 .addCode(CodeBlock.builder()
-                                        .beginControlFlow("if (feature instanceof $T)", mFeatureClassName)
+                                        .beginControlFlow("if (feature instanceof $T)",
+                                                mFeatureClassName)
                                         .addStatement("(($T) feature).$L($L)", mFeatureClassName,
-                                                mNames.getFeatureMethodName(methodElement), fieldNames)
+                                                mNames.getFeatureMethodName(methodElement),
+                                                fieldNames)
                                         .endControlFlow()
                                         .build())
                                 .build())
@@ -156,13 +159,15 @@ class FeatureCodeBrewer implements ModelNodeVisitor {
 
     private void brewClassFeatureHost(FeatureNode featureNode) {
         TypeName superFeatureHostType = mNames.getFeatureHostSuperTypeName(featureNode);
-        ClassName featureContextSuperClassName = mNames.getFeatureContextSuperClassName(featureNode);
+        ClassName featureContextSuperClassName =
+                mNames.getFeatureContextSuperClassName(featureNode);
 
         if (featureNode.hasInheritingFeatureNodes()) {
             // public abstract class FeatureAHost<FH extends FeatureAHost, C extends Context>
             //                      extends FeatureHost<FH, C> {
 
-            TypeVariableName contextTypeVariable = mNames.getFeatureContextTypeVariableName(featureNode);
+            TypeVariableName contextTypeVariable =
+                    mNames.getFeatureContextTypeVariableName(featureNode);
             TypeVariableName featureHostType = mNames.getFeatureHostTypeVariableName(featureNode);
 
             mFeatureHostTypeBuilder = TypeSpec

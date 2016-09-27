@@ -11,7 +11,8 @@ import de.halfbit.featured.FeatureEvent;
  * to get access to its callbacks. See how it is done in {@code SampleLibraryFeature}
  * in featured-sample project.
  */
-public class LifecycleFeature<FH extends LifecycleFeatureHost, C extends Activity> extends Feature<FH, C> {
+public class LifecycleFeature<FH extends LifecycleFeatureHost, C extends Activity>
+        extends Feature<FH, C> {
 
     @FeatureEvent
     protected void onCreate() {

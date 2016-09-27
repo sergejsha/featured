@@ -105,14 +105,15 @@ public class FeatureNode {
 
 
     @Override public String toString() {
-        return "FeatureNode{" +
-                "mName='" + mName + '\'' +
-                ", mElement=" + mElement +
-                ", mIsValid=" + mIsValid +
-                ", mMethods=" + mMethods +
-                ", mIsLibraryNode=" + mIsLibraryNode +
-                ", mSuperFeatureNode=" + mSuperFeatureNode +
-                ", mHasExtendingFeatureNodes=" + mHasExtendingFeatureNodes +
-                '}';
+        return "FeatureNode{"
+                + "mName='" + mName
+                + '\''
+                + ", mElement=" + mElement
+                + ", mIsValid=" + mIsValid
+                + ", mMethods=" + mMethods
+                + ", mIsLibraryNode=" + mIsLibraryNode
+                + ", mSuperFeatureNode=" + mSuperFeatureNode
+                + ", mHasExtendingFeatureNodes=" + mHasExtendingFeatureNodes
+                + '}';
     }
 }
