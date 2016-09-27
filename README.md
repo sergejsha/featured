@@ -1,16 +1,16 @@
 # Featured
-helps you to split activity or fragment code into truly decoupled, testable and maintainable features.
+This library will help you to split activity or fragment code into truly decoupled, testable and maintainable features.
 
-Features are hosted by a `FeatureHost` which resides in an activity or a fragment. Features communicate to each other through the feature host by means of events as shown in the picture below.
+Features are small units sharing same lifecycle. They are hosted by a `FeatureHost` class which, in turn, resides in an activity or a fragment. Features communicate to each other through the feature host by means of events as shown in the diagram below.
 
 ![diagram][1]
 
-# Documentation
+## Documentation
 
 - [Quick Start][2]
 - [Featured Design][3]
 
-# Use with Gradle
+## Use with Gradle
 
 Add this to you project-level `build.gradle`:
 
@@ -40,7 +40,7 @@ dependencies {
 }
 ```
 
-# License
+## License
 ```
 Copyright 2016 Sergej Shafarenka, www.halfbit.de
 
