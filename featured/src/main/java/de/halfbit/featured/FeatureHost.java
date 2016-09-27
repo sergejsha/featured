@@ -25,7 +25,7 @@ import android.support.v4.util.ArrayMap;
  *
  * @author sergej shafarenka
  */
-public abstract class FeatureHost<C> {
+public abstract class FeatureHost<FH, C> {
 
     /**
      * Callback interface which is called right after a feature event has been dispatched.

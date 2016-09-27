@@ -24,7 +24,7 @@ import javax.tools.JavaFileObject;
 import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
-public class FeatureEventTest {
+public class FeaturedTests {
 
     @Test
     public void checkOnEvent() throws Exception {
@@ -55,6 +55,57 @@ public class FeatureEventTest {
                         "        super(context);",
                         "    }",
                         "    @NonNull public TestFeatureHost with(@NonNull TestFeature feature) {",
+                        "        addFeature(feature);",
+                        "        return this;",
+                        "    }",
+                        "    public void dispatchOnStart() {",
+                        "        dispatch(new OnStartEvent());",
+                        "    }",
+                        "    static final class OnStartEvent extends FeatureHost.Event {",
+                        "        @Override protected void dispatch(@NonNull Feature feature) {",
+                        "        if (feature instanceof TestFeature) {",
+                        "            ((TestFeature) feature).onStart();",
+                        "        }",
+                        "    }",
+                        "}"
+                );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new FeatureProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expectedSource);
+    }
+
+    @Test
+    public void checkCustomFeatureHostName() throws Exception {
+
+        JavaFileObject source = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.TestFeature",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "import android.app.Application;",
+                        "import de.halfbit.featured.FeatureEvent;",
+                        "import de.halfbit.featured.Feature;",
+                        "public class TestFeature extends Feature<CustomTestFeatureHost, Application> {",
+                        "    @FeatureEvent protected void onStart() { }",
+                        "}"
+                );
+
+        JavaFileObject expectedSource = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.CustomTestFeatureHost",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "import android.app.Application;",
+                        "import android.support.annotation.NonNull;",
+                        "import de.halfbit.featured.Feature;",
+                        "import de.halfbit.featured.FeatureHost;",
+                        "",
+                        "public class CustomTestFeatureHost extends FeatureHost<CustomTestFeatureHost, Application> {",
+                        "    public CustomTestFeatureHost(@NonNull Application context) {",
+                        "        super(context);",
+                        "    }",
+                        "    @NonNull public CustomTestFeatureHost with(@NonNull TestFeature feature) {",
                         "        addFeature(feature);",
                         "        return this;",
                         "    }",
@@ -500,13 +551,13 @@ public class FeatureEventTest {
                         "import de.halfbit.featured.Feature;",
                         "import de.halfbit.featured.FeatureHost;",
                         "",
-                        "public class FeatureAHost<FH extends FeatureAHost, C extends Context> extends FeatureHost<FH, C> {",
+                        "public abstract class FeatureAHost<FH extends FeatureAHost, C extends Context> extends FeatureHost<FH, C> {",
                         "    public FeatureHostA(@NonNull C context) {",
                         "        super(context);",
                         "    }",
-                        "    @NonNull public FeatureAHost with(@NonNull FeatureA feature) {",
+                        "    @NonNull public FH with(@NonNull FeatureA feature) {",
                         "        addFeature(feature);",
-                        "        return this;",
+                        "        return (FH) this;",
                         "    }",
                         "    public void dispatchOnMessageA() {",
                         "        dispatch(new OnMessageAEvent());",
@@ -587,13 +638,13 @@ public class FeatureEventTest {
                         "import de.halfbit.featured.Feature;",
                         "import de.halfbit.featured.FeatureHost;",
                         "",
-                        "public class FeatureAHost<FH extends FeatureAHost, C extends Application> extends FeatureHost<FH, C> {",
+                        "public abstract class FeatureAHost<FH extends FeatureAHost, C extends Application> extends FeatureHost<FH, C> {",
                         "    public FeatureHostA(@NonNull C context) {",
                         "        super(context);",
                         "    }",
-                        "    @NonNull public FeatureAHost with(@NonNull FeatureA feature) {",
+                        "    @NonNull public FH with(@NonNull FeatureA feature) {",
                         "        addFeature(feature);",
-                        "        return this;",
+                        "        return (FH) this;",
                         "    }",
                         "    public void dispatchOnMessageA() {",
                         "        dispatch(new OnMessageAEvent());",

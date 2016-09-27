@@ -52,7 +52,7 @@ public class FeatureModelValidator implements ModelNodeVisitor {
         if (!isSubtypeOfType(element.asType(), superType)) {
             error(featureNode, element,
                     "%s must inherit from %s.", element.getQualifiedName(),
-                    mNames.getFeatureSuperTypeName(featureNode).toString());
+                    mNames.getSuggestedSuperFeatureTypeName(featureNode).toString());
         }
 
         return true;
