@@ -5,12 +5,12 @@ Features are small units sharing same lifecycle. They are hosted by a `FeatureHo
 
 ![diagram][1]
 
-## Documentation
+# Documentation
 
 - [Quick Start][2]
 - [Featured Design][3]
 
-## Use with Gradle
+# Use with Gradle
 
 Add this to you project-level `build.gradle`:
 
@@ -35,12 +35,12 @@ android {
 }
 
 dependencies {
-    apt "de.halfbit:featured-compiler:0.0.2"
-    compile "de.halfbit:featured:0.0.2"
+    apt "de.halfbit:featured-compiler:0.1.0"
+    compile "de.halfbit:featured:0.1.0"
 }
 ```
 
-## License
+# License
 ```
 Copyright 2016 Sergej Shafarenka, www.halfbit.de
 
