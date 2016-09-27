@@ -1,20 +1,39 @@
-# How to start with featured desing?
+# Quick Start
 
-1) First you need to think of splitting your activity into independent components communicating via events. Start with standard lifecycle events like `onCreate()`, `onStart()` etc. and add your events to them.
+1) First you need to think of splitting your activity into independent components communicating via events. Start with standard activity or fragment lifecycle events like `onCreate()`, `onStart()` etc. and add other custome events like `onDataLoaded`, `onButtonClicked` etc. if required.
 
-2) Create basis feature class and add all events of all possible components, including standard lifecycle events.
+2) Create a basis feature class and declare all lifecycle events in there. Use `@FeatureEvent` annotation for events to be dispatched.
+
 ```java
-public class SampleFeature extends Feature<SampleFeatureHost> {
-    @FeatureEvent protected void onCreate(@NonNull CoordinatorLayout parent) {}
-    @FeatureEvent protected void onStart() {}
-    @FeatureEvent protected void onFabClicked() {}
-    @FeatureEvent protected void onStop() {}
-    @FeatureEvent protected void onDestroy() {}
+public class SampleFeature extends Feature<SampleFeatureHost, Context> {
+    @FeatureEvent protected void onCreate(@NonNull CoordinatorLayout parent) {
+        // nop
+    }
+    
+    @FeatureEvent protected void onStart() {
+        // nop
+    }
+    
+    @FeatureEvent protected void onFabClicked() {
+        // nop
+    }
+    
+    @FeatureEvent protected void onStop() {
+        // nop
+    }
+    
+    @FeatureEvent protected void onDestroy() {
+        // nop
+    }
 }
 ```
-Because your feature is called `SampleFeature`, generated feature host class will be called `SampleFeatureHost`. You need to use this name as parameter of extended `Feature` class. Save and build `SampleFeature` class. Feature host will be generated and sources will compile successfully.
 
-3) Now implement your features by extending basis `SampleFeature` class.
+The `SampleFeature` class extends a parametrized `Feature` class. First parameter is the name of the feature host class to be generated. You can freely choose the name, but adding a `Host` string to the feature name is a good choice. Second parameter is a name of the context your feature is capable to access. It can be `Context`, `Activity`, `Fragment` or any other class you find usefull for your feature implementation. Later on, when you implement features you will be able to access this context from the feature code at any time.
+
+Build the project. `SampleFeatureHost` class will be generated and source code will compile successfully.
+
+3) Consider the `SampleFeature` class to be an interface defining feature lifecycle. Now you can implement your features by extending `SampleFeature` class as following:
+
 ```java
 public class ToolbarFeature extends SampleFeature {
     @Override protected void onFabClicked() {
@@ -29,7 +48,8 @@ public class FabFeature extends SampleFeature implements View.OnClickListener {
     }
 }
 ```
-Generated feature host class contains dispatch-methods for each event method of `SampleFeature`. Use these methods to dispatch events to all features. You can call those methods from activity or from inside any feature.
+
+Generated `SampleFeatureHost` class contains dispatch methods for each event method of the `SampleFeature`. Use these methods to dispatch events to your features. You can call those methods from the activity or from inside of any feature.
 
 4) Register features to the feature host class in your activity or a fragment.
 ```java
@@ -55,4 +75,5 @@ public MyFragment extends Fragment {
     @Override public void onDestroy() { mFeatureHost.dispatchOnDestroy(); }
 }
 ```
-Your fragment become very simple and whole application code gets split into separated features with very clean responcibility. You can add new features or disable existing features depending on the device configuration etc. See `featured-sample` project for more detail.
+
+Your fragment become very simple and whole application code gets split into separated features with the very clean responcibilities. You can add new features or disable existing features depending on your use case or the device configuration etc. See `featured-sample` project for more code examples.
