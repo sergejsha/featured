@@ -56,6 +56,8 @@ public class Names {
             ClassName.get(PACKAGE_NAME, "FeatureHost", "OnDispatchCompleted");
     private static final ClassName CONTEXT =
             ClassName.get("android.content", "Context");
+    private static final ClassName STRING =
+            ClassName.get("java.lang", "String");
     private static final ClassName NOT_NULL =
             ClassName.get("android.support.annotation", "NonNull");
     private static final ClassName OVERRIDE =
@@ -169,6 +171,10 @@ public class Names {
 
     public ClassName getNonNullClassName() {
         return NOT_NULL;
+    }
+
+    public ClassName getStringClassName() {
+        return STRING;
     }
 
     public ClassName getOverrideClassName() {

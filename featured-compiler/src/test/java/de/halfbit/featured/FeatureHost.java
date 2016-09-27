@@ -40,7 +40,7 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
         throw new RuntimeException("Stub!");
     }
 
-    protected void addFeature(Feature feature) {
+    protected void addFeature(Feature feature, @Nullable String featureName) {
         throw new RuntimeException("Stub!");
     }
 

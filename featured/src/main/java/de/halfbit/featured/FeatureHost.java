@@ -25,7 +25,7 @@ import android.support.v4.util.ArrayMap;
  *
  * @author sergej shafarenka
  */
-public abstract class FeatureHost<FH, C> {
+public abstract class FeatureHost<FH extends FeatureHost, C> {
 
     /**
      * Callback interface which is called right after a feature event has been dispatched.
@@ -49,7 +49,7 @@ public abstract class FeatureHost<FH, C> {
     }
 
     private final C mContext;
-    private final ArrayMap<Class<? extends Feature>, Feature> mFeatures;
+    private final ArrayMap<String, Feature> mFeatures;
     private Event mDispatchingEvent;
 
     /**
@@ -78,13 +78,19 @@ public abstract class FeatureHost<FH, C> {
      * @param feature feature instance to be registered
      */
     @SuppressWarnings("unchecked")
-    protected void addFeature(Feature feature) {
-        Class<? extends Feature> clazz = feature.getClass();
-        if (mFeatures.containsKey(clazz)) {
-            throw new IllegalArgumentException(
-                    String.format("Feature %s is already registered", clazz));
+    protected void addFeature(Feature feature, @Nullable String featureName) {
+        if (featureName == null) {
+            featureName = feature.getClass().toString();
         }
-        mFeatures.put(clazz, feature);
+
+        Feature registeredFeature = mFeatures.put(featureName, feature);
+        if (registeredFeature != null) {
+            throw new IllegalArgumentException(
+                    String.format("There is already a feature %s registered with name %s. " +
+                            "Use different feature name if you want to register same feature " +
+                            "class multiple times.", registeredFeature, featureName));
+        }
+
         feature.attachFeatureHost(this);
     }
 
@@ -95,9 +101,15 @@ public abstract class FeatureHost<FH, C> {
      * @return registered feature of {@code null}
      */
     @Nullable
-    public <F extends Feature> F getFeature(Class<F> featureClass) {
+    public <F extends Feature> F getFeature(@NonNull Class<F> featureClass) {
         //noinspection unchecked
-        return (F) mFeatures.get(featureClass);
+        return (F) mFeatures.get(featureClass.toString());
+    }
+
+    @Nullable
+    public <F extends Feature> F getFeature(@NonNull Class<F> featureClass, @NonNull String featureName) {
+        //noinspection unchecked
+        return (F) mFeatures.get(featureName);
     }
 
     protected void dispatch(Event event) {

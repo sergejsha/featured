@@ -69,7 +69,8 @@ class FeatureCodeBrewer implements ModelNodeVisitor {
         mFeatureHostClassName = mNames.getFeatureHostClassName(featureNode);
 
         brewClassFeatureHost(featureNode);
-        brewMethodWith(featureNode);
+        brewMethodWithFeature(featureNode);
+        brewMethodWithFeatureName(featureNode);
 
         return true;
     }
@@ -197,7 +198,7 @@ class FeatureCodeBrewer implements ModelNodeVisitor {
         }
     }
 
-    private void brewMethodWith(FeatureNode featureNode) {
+    private void brewMethodWithFeature(FeatureNode featureNode) {
         MethodSpec.Builder withMethod = MethodSpec.methodBuilder("with")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(mNames.getNonNullClassName())
@@ -209,14 +210,46 @@ class FeatureCodeBrewer implements ModelNodeVisitor {
 
         if (featureHostType == null) {
             withMethod.addCode(CodeBlock.builder()
-                    .addStatement("addFeature(feature)")
+                    .addStatement("addFeature(feature, feature.getClass().toString())")
                     .addStatement("return this")
                     .build())
                     .returns(mFeatureHostClassName);
 
         } else {
             withMethod.addCode(CodeBlock.builder()
-                    .addStatement("addFeature(feature)")
+                    .addStatement("addFeature(feature, feature.getClass().toString())")
+                    .addStatement("return ($T) this", featureHostType)
+                    .build())
+                    .returns(featureHostType);
+        }
+
+        mFeatureHostTypeBuilder
+                .addMethod(withMethod.build());
+    }
+
+    private void brewMethodWithFeatureName(FeatureNode featureNode) {
+        MethodSpec.Builder withMethod = MethodSpec.methodBuilder("with")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(mNames.getNonNullClassName())
+                .addParameter(ParameterSpec.builder(mFeatureClassName, "feature")
+                        .addAnnotation(mNames.getNonNullClassName())
+                        .build())
+                .addParameter(ParameterSpec.builder(mNames.getStringClassName(), "featureName")
+                        .addAnnotation(mNames.getNonNullClassName())
+                        .build());
+
+        TypeName featureHostType = mNames.getFeatureHostParameterTypeName(featureNode);
+
+        if (featureHostType == null) {
+            withMethod.addCode(CodeBlock.builder()
+                    .addStatement("addFeature(feature, featureName)")
+                    .addStatement("return this")
+                    .build())
+                    .returns(mFeatureHostClassName);
+
+        } else {
+            withMethod.addCode(CodeBlock.builder()
+                    .addStatement("addFeature(feature, featureName)")
                     .addStatement("return ($T) this", featureHostType)
                     .build())
                     .returns(featureHostType);
