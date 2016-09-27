@@ -70,9 +70,18 @@ public MyFragment extends Fragment {
     }
 
     // dispatch other events correspondingly
-    @Override public void onStart() { mFeatureHost.dispatchOnStart(); }
-    @Override public void onStop() { mFeatureHost.dispatchOnStop(); }
-    @Override public void onDestroy() { mFeatureHost.dispatchOnDestroy(); }
+    
+    @Override public void onStart() {
+        mFeatureHost.dispatchOnStart();
+    }
+    
+    @Override public void onStop() {
+        mFeatureHost.dispatchOnStop();
+    }
+    
+    @Override public void onDestroy() {
+        mFeatureHost.dispatchOnDestroy();
+    }
 }
 ```
 
