@@ -14,8 +14,8 @@ android {
         applicationId 'de.halfbit.featured'
         minSdkVersion 11
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName '0.0.3'
+        versionCode 4
+        versionName '0.1.0'
     }
 
     lintOptions {

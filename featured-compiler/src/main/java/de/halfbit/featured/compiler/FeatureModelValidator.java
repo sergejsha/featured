@@ -46,13 +46,13 @@ public class FeatureModelValidator implements ModelNodeVisitor {
     @Override public boolean onFeatureEnter(FeatureNode featureNode) {
         featureNode.setValid(true);
 
-        // verify extends Feature<?> class
+        // verify extends Feature<?,?> class
         TypeElement element = featureNode.getElement();
-        String superType = mNames.getFeatureClassName().toString() + "<?>";
+        String superType = mNames.getFeatureClassName().toString() + "<?,?>";
         if (!isSubtypeOfType(element.asType(), superType)) {
             error(featureNode, element,
                     "%s must inherit from %s.", element.getQualifiedName(),
-                    mNames.getFeatureSuperTypeName(featureNode).toString());
+                    mNames.getSuggestedSuperFeatureTypeName(featureNode).toString());
         }
 
         return true;
@@ -70,11 +70,19 @@ public class FeatureModelValidator implements ModelNodeVisitor {
                     element.getSimpleName());
         }
 
-        // verify not private or static
         Set<Modifier> modifiers = element.getModifiers();
-        if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.STATIC)) {
+
+        // verify not private
+        if (modifiers.contains(Modifier.PRIVATE)) {
             error(methodElement.getParent(), element,
-                    "@%s void %s() must not be private or static.",
+                    "@%s void %s() must not be private.",
+                    mNames.getFeatureEventClassName(), element.getSimpleName());
+        }
+
+        // verify not static
+        if (modifiers.contains(Modifier.STATIC)) {
+            error(methodElement.getParent(), element,
+                    "@%s void %s() must not be static.",
                     mNames.getFeatureEventClassName(), element.getSimpleName());
         }
     }

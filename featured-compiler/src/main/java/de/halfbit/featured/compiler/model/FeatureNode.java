@@ -102,4 +102,18 @@ public class FeatureNode {
     public String getName() {
         return mName;
     }
+
+
+    @Override public String toString() {
+        return "FeatureNode{"
+                + "mName='" + mName
+                + '\''
+                + ", mElement=" + mElement
+                + ", mIsValid=" + mIsValid
+                + ", mMethods=" + mMethods
+                + ", mIsLibraryNode=" + mIsLibraryNode
+                + ", mSuperFeatureNode=" + mSuperFeatureNode
+                + ", mHasExtendingFeatureNodes=" + mHasExtendingFeatureNodes
+                + '}';
+    }
 }

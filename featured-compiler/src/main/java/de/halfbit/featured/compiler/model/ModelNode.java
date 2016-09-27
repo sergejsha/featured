@@ -47,7 +47,7 @@ public class ModelNode {
         Collection<FeatureNode> featureNodes = getFeatureNodes();
         for (FeatureNode featureNode : featureNodes) {
 
-            // feature has inheriting features if it is parametried with generics
+            // feature has inheriting features if it is parametrized with generics
             List<? extends TypeParameterElement> typeParams =
                     featureNode.getElement().getTypeParameters();
             if (typeParams.size() > 0) {
@@ -55,7 +55,7 @@ public class ModelNode {
                 continue;
             }
 
-            // look up for super-features whithin collected nodes
+            // look up for super-features within collected nodes
             TypeMirror superType = featureNode.getElement().getSuperclass();
             while (superType.getKind() != TypeKind.NONE) {
                 for (FeatureNode otherFeatureNode : featureNodes) {
