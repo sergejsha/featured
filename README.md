@@ -9,6 +9,7 @@ Features are small units sharing same lifecycle. They are hosted by a `FeatureHo
 
 - [Quick Start][2]
 - [Featured Design][3]
+- [Migrate to version 0.1.0][4]
 
 # Use with Gradle
 
@@ -60,3 +61,4 @@ limitations under the License.
 [1]: docs/images/diagram.png
 [2]: docs/quick-start.md
 [3]: docs/featured-design.md
+[4]: docs/migrate-to-0.1.0.md
