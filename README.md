@@ -9,7 +9,7 @@ Features are small units sharing same lifecycle. They are hosted by a `FeatureHo
 
 - [Quick Start][2]
 - [Featured Design][3]
-- [Migrate to version 0.1.0][4]
+- [Migrate to version 0.1.0 or higher][4]
 
 # Use with Gradle
 
@@ -36,8 +36,8 @@ android {
 }
 
 dependencies {
-    apt 'de.halfbit:featured-compiler:0.1.0'
-    compile 'de.halfbit:featured:0.1.0'
+    apt 'de.halfbit:featured-compiler:0.2.0'
+    compile 'de.halfbit:featured:0.2.0'
 }
 ```
 
