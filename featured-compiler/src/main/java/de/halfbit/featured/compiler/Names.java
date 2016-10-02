@@ -309,19 +309,17 @@ public class Names {
             case SHORT:
                 return TypeName.SHORT;
 
-            case DECLARED: {
+            case DECLARED:
                 TypeMirror type = param.asType();
                 TypeName typeName = ClassName.get(type);
                 typeName = applyAnnotations(typeName, param);
                 return typeName;
-            }
 
-            case ARRAY: {
-                ArrayType type = (ArrayType) param.asType();
-                TypeName typeName = ArrayTypeName.get(type);
-                typeName = applyAnnotations(typeName, param);
-                return typeName;
-            }
+            case ARRAY:
+                ArrayType arrayType = (ArrayType) param.asType();
+                TypeName arrayTypeName = ArrayTypeName.get(arrayType);
+                arrayTypeName = applyAnnotations(arrayTypeName, param);
+                return arrayTypeName;
 
             default:
                 throw new IllegalStateException("unsupported kind: " + param.asType().getKind());
