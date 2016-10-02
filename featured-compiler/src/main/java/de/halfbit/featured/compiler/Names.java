@@ -16,6 +16,7 @@
 package de.halfbit.featured.compiler;
 
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -30,6 +31,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -307,25 +309,36 @@ public class Names {
             case SHORT:
                 return TypeName.SHORT;
 
-            case DECLARED:
+            case DECLARED: {
                 TypeMirror type = param.asType();
                 TypeName typeName = ClassName.get(type);
-
-                List<? extends AnnotationMirror> annotationMirrors = param.getAnnotationMirrors();
-                if (annotationMirrors.size() > 0) {
-                    List<AnnotationSpec> annotationSpecs =
-                            new ArrayList<>(annotationMirrors.size());
-                    for (AnnotationMirror annotationMirror : annotationMirrors) {
-                        annotationSpecs.add(AnnotationSpec.get(annotationMirror));
-                    }
-                    typeName = typeName.annotated(annotationSpecs);
-                }
-
+                typeName = applyAnnotations(typeName, param);
                 return typeName;
+            }
+
+            case ARRAY: {
+                ArrayType type = (ArrayType) param.asType();
+                TypeName typeName = ArrayTypeName.get(type);
+                typeName = applyAnnotations(typeName, param);
+                return typeName;
+            }
 
             default:
                 throw new IllegalStateException("unsupported kind: " + param.asType().getKind());
         }
+    }
+
+    private static TypeName applyAnnotations(TypeName typeName, VariableElement param) {
+        List<? extends AnnotationMirror> annotationMirrors = param.getAnnotationMirrors();
+        if (annotationMirrors.size() > 0) {
+            List<AnnotationSpec> annotationSpecs =
+                    new ArrayList<>(annotationMirrors.size());
+            for (AnnotationMirror annotationMirror : annotationMirrors) {
+                annotationSpecs.add(AnnotationSpec.get(annotationMirror));
+            }
+            typeName = typeName.annotated(annotationSpecs);
+        }
+        return typeName;
     }
 
     public ClassName getDispatchCompletedClassName() {

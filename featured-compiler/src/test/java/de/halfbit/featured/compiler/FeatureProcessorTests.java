@@ -787,4 +787,71 @@ public class FeatureProcessorTests {
 
     }
 
+    @Test
+    public void checkOnEventWithArrayParameters() throws Exception {
+
+        JavaFileObject source = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.TestFeature",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "",
+                        "import android.content.Context;",
+                        "import android.support.annotation.NonNull;",
+                        "import de.halfbit.featured.FeatureEvent;",
+                        "import de.halfbit.featured.Feature;",
+                        "",
+                        "public class TestFeature extends Feature<TestFeatureHost, Context> {",
+                        "    @FeatureEvent protected void onCreate(@NonNull int[] value1, Object[] value2) { }",
+                        "}"
+                );
+
+        JavaFileObject expectedSource = JavaFileObjects
+                .forSourceLines("de.halfbit.featured.test.TestFeatureHost",
+                        "",
+                        "package de.halfbit.featured.test;",
+                        "",
+                        "import android.content.Context;",
+                        "import android.support.annotation.NonNull;",
+                        "import de.halfbit.featured.Feature;",
+                        "import de.halfbit.featured.FeatureHost;",
+                        "",
+                        "public class TestFeatureHost extends FeatureHost<TestFeatureHost, Context> {",
+                        "    public TestFeatureHost(@NonNull Context context) {",
+                        "        super(context);",
+                        "    }",
+                        "    @NonNull public TestFeatureHost with(@NonNull TestFeature feature) {",
+                        "        addFeature(feature, feature.getClass().toString());",
+                        "        return this;",
+                        "    }",
+                        "    @NonNull public TestFeatureHost with(@NonNull TestFeature feature, @NonNull String featureName) {",
+                        "        addFeature(feature, featureName);",
+                        "        return this;",
+                        "    }",
+                        "    public void dispatchOnCreate(@NonNull int[] value1, Object[] value2) {",
+                        "        dispatch(new OnCreateEvent(value1, value2));",
+                        "    }",
+                        "    static final class OnCreateEvent extends FeatureHost.Event {",
+                        "        private final @NonNull int[] mValue1;",
+                        "        private final Object[] mValue2;",
+                        "        OnCreateEvent(@NonNull int[] value1, Object[] value2) {",
+                        "            mValue1 = value1;",
+                        "            mValue2 = value2;",
+                        "        }",
+                        "        @Override protected void dispatch(@NonNull Feature feature) {",
+                        "            if (feature instanceof TestFeature) {",
+                        "                ((TestFeature) feature).onCreate(mValue1, mValue2);",
+                        "            }",
+                        "        }",
+                        "    }",
+                        "}"
+                );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new FeatureProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expectedSource);
+
+    }
+
 }
