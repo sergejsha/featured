@@ -20,23 +20,14 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
 }
 ```
 
 Add this to your module-level `build.gradle`:
 
 ```groovy
-apply plugin: 'android-apt'
-
-android {
-    ...
-}
-
 dependencies {
-    apt 'de.halfbit:featured-compiler:0.2.0'
+    annotationProcessor 'de.halfbit:featured-compiler:0.2.0'
     compile 'de.halfbit:featured:0.2.0'
 }
 ```
