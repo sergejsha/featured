@@ -50,7 +50,7 @@ public class Names {
     private static final ClassName CONTEXT =
             ClassName.get("android.content", "Context");
     private static final ClassName NOT_NULL =
-            ClassName.get("android.support.annotation", "NonNull");
+            ClassName.get("androidx.annotation", "NonNull");
     private static final ClassName OVERRIDE =
             ClassName.get("java.lang", "Override");
 
