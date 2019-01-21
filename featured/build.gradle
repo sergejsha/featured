@@ -20,6 +20,7 @@ dependencies {
     compile project(':featured-annotations')
     compile deps.supportAnnotations
     provided deps.supportv4
+    compile deps.jetbrains
 
     testCompile deps.junit
     testCompile deps.truth
