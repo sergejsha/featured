@@ -33,6 +33,7 @@ dependencies {
     implementation project(':featured')
     implementation project(':featured-sample-library')
 
+    implementation deps.supportv4
     implementation deps.supportAppCompat
     implementation deps.supportDesign
 
