@@ -15,7 +15,7 @@
  */
 package de.halfbit.featured;
 
-import android.support.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Feature defines a self-contained piece of application logic decoupled from the rest of
@@ -99,7 +99,7 @@ public abstract class Feature<FH extends FeatureHost> {
         mFeatureHost = featureHost;
     }
 
-    @NonNull protected FH getFeatureHost() {
+    @NotNull protected FH getFeatureHost() {
         return mFeatureHost;
     }
 

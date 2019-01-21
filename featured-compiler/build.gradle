@@ -12,13 +12,8 @@ for (File file : sdkHandler.sdkLoader.repositories) {
     }
 }
 
-configurations {
-    provided
-    compile.extendsFrom provided
-}
-
 dependencies {
-    provided deps.android
+    compileOnly deps.android
 
     implementation project(':featured-annotations')
     implementation deps.autoservice

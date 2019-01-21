@@ -16,6 +16,8 @@ android {
 }
 
 dependencies {
+    compileOnly deps.android
+
     api project(':featured-annotations')
     api deps.jetbrains
 

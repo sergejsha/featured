@@ -17,9 +17,9 @@ package de.halfbit.featured;
 
 import android.content.Context;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.util.ArrayMap;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import java.util.HashMap;
 
 /**
  * Base class for generated feature host classes.
@@ -49,7 +49,7 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
     }
 
     private final Context mContext;
-    private final ArrayMap<Class<F>, F> mFeatures;
+    private final HashMap<Class<F>, F> mFeatures;
     private Event mDispatchingEvent;
 
     /**
@@ -57,8 +57,8 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      *
      * @param context context to be attached
      */
-    public FeatureHost(@NonNull Context context) {
-        mFeatures = new ArrayMap<>(10);
+    public FeatureHost(@NotNull Context context) {
+        mFeatures = new HashMap<>(10);
         mContext = context;
     }
 
@@ -67,7 +67,7 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      *
      * @return context attached to this feature host instance.
      */
-    @NonNull
+    @NotNull
     public Context getContext() {
         return mContext;
     }
@@ -78,7 +78,7 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      * @param feature feature instance to be registered
      * @return this feature host for fluent interface
      */
-    @NonNull @SuppressWarnings("unchecked")
+    @NotNull @SuppressWarnings("unchecked")
     public FH with(F feature) {
         Class<F> clazz = (Class<F>) feature.getClass();
         if (mFeatures.containsKey(clazz)) {
@@ -112,9 +112,9 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
             while (e != null) {
 
                 // dispatch to all features first
-                for (int i = 0, size = mFeatures.size(); i < size; i++) {
+                for (F feature : mFeatures.values()) {
                     //noinspection unchecked
-                    e.dispatch(mFeatures.valueAt(i));
+                    e.dispatch(feature);
                 }
 
                 // dispatch event completion now
