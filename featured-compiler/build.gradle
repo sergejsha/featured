@@ -17,6 +17,7 @@ dependencies {
     compile deps.autoservice
     compile deps.autocommon
     compile deps.javapoet
+    compile deps.jetbrains
 
     testCompile deps.junit
     testCompile deps.truth
