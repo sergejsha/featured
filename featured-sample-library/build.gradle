@@ -1,9 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
@@ -30,6 +28,6 @@ android {
 }
 
 dependencies {
-    apt project(':featured-compiler')
-    compile project(':featured')
+    annotationProcessor project(':featured-compiler')
+    implementation project(':featured')
 }
