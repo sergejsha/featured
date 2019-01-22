@@ -17,14 +17,7 @@ checkstyle {
     showViolations true
 }
 
-configurations {
-    provided
-    compile.extendsFrom provided
-}
-
 dependencies {
-    //provided deps.android
-    compile deps.supportAnnotations
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

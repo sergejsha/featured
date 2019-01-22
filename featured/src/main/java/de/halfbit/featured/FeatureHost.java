@@ -16,9 +16,10 @@
 package de.halfbit.featured;
 
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.util.ArrayMap;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
 
 /**
  * Base class for generated feature host classes.
@@ -45,11 +46,11 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
         @Nullable
         protected OnDispatchCompleted mOnDispatchCompleted;
 
-        protected abstract void dispatch(@NonNull Feature feature);
+        protected abstract void dispatch(@NotNull Feature feature);
     }
 
     private final C mContext;
-    private final ArrayMap<String, Feature> mFeatures;
+    private final HashMap<String, Feature> mFeatures;
     private Event mDispatchingEvent;
 
     /**
@@ -57,8 +58,8 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
      *
      * @param context context to be attached
      */
-    public FeatureHost(@NonNull C context) {
-        mFeatures = new ArrayMap<>(10);
+    public FeatureHost(@NotNull C context) {
+        mFeatures = new HashMap<>(10);
         mContext = context;
     }
 
@@ -67,7 +68,7 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
      *
      * @return context attached to this feature host instance.
      */
-    @NonNull
+    @NotNull
     protected C getContext() {
         return mContext;
     }
@@ -101,14 +102,14 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
      * @return registered feature of {@code null}
      */
     @Nullable
-    public <F extends Feature> F getFeature(@NonNull Class<F> featureClass) {
+    public <F extends Feature> F getFeature(@NotNull Class<F> featureClass) {
         //noinspection unchecked
         return (F) mFeatures.get(featureClass.toString());
     }
 
     @Nullable
-    public <F extends Feature> F getFeature(@NonNull Class<F> featureClass,
-                                            @NonNull String featureName) {
+    public <F extends Feature> F getFeature(@NotNull Class<F> featureClass,
+                                            @NotNull String featureName) {
         //noinspection unchecked
         return (F) mFeatures.get(featureName);
     }
@@ -124,9 +125,9 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
             while (e != null) {
 
                 // dispatch to all features first
-                for (int i = 0, size = mFeatures.size(); i < size; i++) {
+                for (Feature feature : mFeatures.values()) {
                     //noinspection unchecked
-                    e.dispatch(mFeatures.valueAt(i));
+                    e.dispatch(feature);
                 }
 
                 // dispatch event completion now

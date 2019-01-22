@@ -61,7 +61,7 @@ public class Names {
     private static final ClassName STRING =
             ClassName.get("java.lang", "String");
     private static final ClassName NOT_NULL =
-            ClassName.get("android.support.annotation", "NonNull");
+            ClassName.get("org.jetbrains.annotations", "NotNull");
     private static final ClassName OVERRIDE =
             ClassName.get("java.lang", "Override");
 

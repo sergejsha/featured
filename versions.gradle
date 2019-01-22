@@ -1,0 +1,28 @@
+ext {
+    minSdkVersion = 14
+    targetSdkVersion = 28
+    compileSdkVersion = 28
+    sourceCompatibilityVersion = JavaVersion.VERSION_1_7
+    targetCompatibilityVersion = JavaVersion.VERSION_1_7
+}
+
+ext.deps = [:]
+
+// android
+ext.deps.android = 'com.google.android:android:4.1.1.4'
+ext.deps.supportv4 = 'com.android.support:support-v4:28.0.0'
+ext.deps.supportAnnotations = 'com.android.support:support-annotations:28.0.0'
+ext.deps.supportAppCompat = 'com.android.support:appcompat-v7:28.0.0'
+ext.deps.supportDesign = 'com.android.support:design:28.0.0'
+
+// open source
+ext.deps.javapoet = 'com.squareup:javapoet:1.7.0'
+ext.deps.jetbrains = 'org.jetbrains:annotations:15.0'
+
+// testing
+ext.deps.junit = 'junit:junit:4.12'
+ext.deps.truth = 'com.google.truth:truth:0.28'
+ext.deps.robolectric = 'org.robolectric:robolectric:3.1'
+ext.deps.compiletesting = 'com.google.testing.compile:compile-testing:0.9'
+ext.deps.autoservice = 'com.google.auto.service:auto-service:1.0-rc4'
+ext.deps.autocommon = 'com.google.auto:auto-common:0.10'

@@ -15,7 +15,7 @@
  */
 package de.halfbit.featured.compiler.model;
 
-import android.support.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

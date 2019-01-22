@@ -1,9 +1,7 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
@@ -12,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId 'de.halfbit.featured'
-        minSdkVersion 11
+        minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 5
         versionName '0.2.0'
@@ -31,16 +29,17 @@ android {
 }
 
 dependencies {
-    apt project(':featured-compiler')
-    compile project(':featured')
-    compile project(':featured-sample-library')
+    annotationProcessor project(':featured-compiler')
+    implementation project(':featured')
+    implementation project(':featured-sample-library')
 
-    compile deps.supportAppCompat
-    compile deps.supportDesign
+    implementation deps.supportv4
+    implementation deps.supportAppCompat
+    implementation deps.supportDesign
 
-    testCompile deps.junit
-    testCompile deps.truth
-    testCompile deps.robolectric
+    testImplementation deps.junit
+    testImplementation deps.truth
+    testImplementation deps.robolectric
 }
 
 afterEvaluate {

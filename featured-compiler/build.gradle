@@ -13,18 +13,22 @@ for (File file : sdkHandler.sdkLoader.repositories) {
 }
 
 dependencies {
-    compile project(':featured-annotations')
-    compile deps.autoservice
-    compile deps.autocommon
-    compile deps.javapoet
+    compileOnly deps.android
 
-    testCompile deps.junit
-    testCompile deps.truth
-    testCompile deps.robolectric
+    implementation project(':featured-annotations')
+    implementation deps.autoservice
+    implementation deps.autocommon
+    implementation deps.javapoet
+    implementation deps.jetbrains
+
+    testImplementation deps.android
+    testImplementation deps.junit
+    testImplementation deps.truth
+    testImplementation deps.robolectric
     // TODO: Unfortunately we can't use deps.supportv4 here as the Java plugin does not support AAR dependencies
-    testCompile 'com.google.android:support-v4:r7'
-    testCompile deps.compiletesting
-    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    testImplementation 'com.google.android:support-v4:r7'
+    testImplementation deps.compiletesting
+    testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
 checkstyle {

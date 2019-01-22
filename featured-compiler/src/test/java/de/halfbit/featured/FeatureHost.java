@@ -15,8 +15,8 @@
  */
 package de.halfbit.featured;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 // Dummy class for tests to compile
 public abstract class FeatureHost<FH extends FeatureHost, C> {
@@ -29,10 +29,10 @@ public abstract class FeatureHost<FH extends FeatureHost, C> {
         @Nullable
         protected OnDispatchCompleted mOnDispatchCompleted;
 
-        protected abstract void dispatch(@NonNull Feature feature);
+        protected abstract void dispatch(@NotNull Feature feature);
     }
 
-    public FeatureHost(@NonNull C context) {
+    public FeatureHost(@NotNull C context) {
         throw new RuntimeException("Stub!");
     }
 

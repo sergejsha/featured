@@ -3,8 +3,9 @@ subprojects { project ->
     version = VERSION_NAME
 
     repositories {
+        google()
         mavenCentral()
-        //jcenter()
+        jcenter()
     }
 
     apply plugin: 'checkstyle'
@@ -27,40 +28,15 @@ subprojects { project ->
 
     buildscript {
         repositories {
+            google()
+            mavenCentral()
             jcenter()
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:2.2.0'
+            classpath 'com.android.tools.build:gradle:3.3.0'
             classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         }
     }
 }
 
-ext {
-    minSdkVersion = 9
-    targetSdkVersion = 24
-    compileSdkVersion = 24
-    buildToolsVersion = '24.0.2'
-    sourceCompatibilityVersion = JavaVersion.VERSION_1_7
-    targetCompatibilityVersion = JavaVersion.VERSION_1_7
-}
-
-ext.deps = [:]
-
-// android
-ext.deps.android = 'com.google.android:android:2.1.2'
-ext.deps.supportv4 = 'com.android.support:support-v4:24.2.1'
-ext.deps.supportAnnotations = 'com.android.support:support-annotations:24.2.1'
-ext.deps.supportAppCompat = 'com.android.support:appcompat-v7:24.2.1'
-ext.deps.supportDesign = 'com.android.support:design:24.2.1'
-
-// open source
-ext.deps.javapoet = 'com.squareup:javapoet:1.7.0'
-
-// testing
-ext.deps.junit = 'junit:junit:4.12'
-ext.deps.truth = 'com.google.truth:truth:0.28'
-ext.deps.robolectric = 'org.robolectric:robolectric:3.1'
-ext.deps.compiletesting = 'com.google.testing.compile:compile-testing:0.9'
-ext.deps.autoservice = 'com.google.auto.service:auto-service:1.0-rc2'
-ext.deps.autocommon = 'com.google.auto:auto-common:0.6'
+apply from: './versions.gradle'
