@@ -15,7 +15,8 @@
  */
 package de.halfbit.featured;
 
-public abstract class Feature<FH extends FeatureHost> {
+// Dummy class for tests to compile
+public abstract class Feature<FH extends FeatureHost, C> {
 
     void attachFeatureHost(FH featureHost) {
         throw new RuntimeException("Stub!");

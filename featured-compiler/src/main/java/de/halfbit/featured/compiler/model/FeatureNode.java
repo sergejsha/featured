@@ -15,7 +15,7 @@
  */
 package de.halfbit.featured.compiler.model;
 
-import android.support.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -101,5 +101,19 @@ public class FeatureNode {
 
     public String getName() {
         return mName;
+    }
+
+
+    @Override public String toString() {
+        return "FeatureNode{"
+                + "mName='" + mName
+                + '\''
+                + ", mElement=" + mElement
+                + ", mIsValid=" + mIsValid
+                + ", mMethods=" + mMethods
+                + ", mIsLibraryNode=" + mIsLibraryNode
+                + ", mSuperFeatureNode=" + mSuperFeatureNode
+                + ", mHasExtendingFeatureNodes=" + mHasExtendingFeatureNodes
+                + '}';
     }
 }

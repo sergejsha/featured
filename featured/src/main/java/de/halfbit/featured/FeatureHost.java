@@ -15,20 +15,18 @@
  */
 package de.halfbit.featured;
 
-import android.content.Context;
 import android.os.Looper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 
 /**
  * Base class for generated feature host classes.
  *
- * @param <F>  the type of your custom feature class with annotated feature callbacks
- * @param <FH> the type of feature host class extending this class
  * @author sergej shafarenka
  */
-public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
+public abstract class FeatureHost<FH extends FeatureHost, C> {
 
     /**
      * Callback interface which is called right after a feature event has been dispatched.
@@ -41,15 +39,18 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
         void onDispatchCompleted();
     }
 
-    protected static abstract class Event<F> {
-        @Nullable Event mNextEvent;
-        @Nullable protected OnDispatchCompleted mOnDispatchCompleted;
+    protected static abstract class Event {
+        @Nullable
+        Event mNextEvent;
 
-        protected abstract void dispatch(F feature);
+        @Nullable
+        protected OnDispatchCompleted mOnDispatchCompleted;
+
+        protected abstract void dispatch(@NotNull Feature feature);
     }
 
-    private final Context mContext;
-    private final HashMap<Class<F>, F> mFeatures;
+    private final C mContext;
+    private final HashMap<String, Feature> mFeatures;
     private Event mDispatchingEvent;
 
     /**
@@ -57,7 +58,7 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      *
      * @param context context to be attached
      */
-    public FeatureHost(@NotNull Context context) {
+    public FeatureHost(@NotNull C context) {
         mFeatures = new HashMap<>(10);
         mContext = context;
     }
@@ -68,7 +69,7 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      * @return context attached to this feature host instance.
      */
     @NotNull
-    public Context getContext() {
+    protected C getContext() {
         return mContext;
     }
 
@@ -76,18 +77,22 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      * Registers a feature at the feature host.
      *
      * @param feature feature instance to be registered
-     * @return this feature host for fluent interface
      */
-    @NotNull @SuppressWarnings("unchecked")
-    public FH with(F feature) {
-        Class<F> clazz = (Class<F>) feature.getClass();
-        if (mFeatures.containsKey(clazz)) {
-            throw new IllegalArgumentException(
-                    String.format("Feature %s is already registered", clazz));
+    @SuppressWarnings("unchecked")
+    protected void addFeature(Feature feature, @Nullable String featureName) {
+        if (featureName == null) {
+            featureName = feature.getClass().toString();
         }
-        mFeatures.put(clazz, feature);
+
+        Feature registeredFeature = mFeatures.put(featureName, feature);
+        if (registeredFeature != null) {
+            throw new IllegalArgumentException(
+                    String.format("There is already a feature %s registered with name %s. "
+                            + "Use different feature name if you want to register same feature "
+                            + "class multiple times.", registeredFeature, featureName));
+        }
+
         feature.attachFeatureHost(this);
-        return (FH) this;
     }
 
     /**
@@ -97,8 +102,16 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
      * @return registered feature of {@code null}
      */
     @Nullable
-    public F getFeature(Class<F> featureClass) {
-        return mFeatures.get(featureClass);
+    public <F extends Feature> F getFeature(@NotNull Class<F> featureClass) {
+        //noinspection unchecked
+        return (F) mFeatures.get(featureClass.toString());
+    }
+
+    @Nullable
+    public <F extends Feature> F getFeature(@NotNull Class<F> featureClass,
+                                            @NotNull String featureName) {
+        //noinspection unchecked
+        return (F) mFeatures.get(featureName);
     }
 
     protected void dispatch(Event event) {
@@ -112,7 +125,7 @@ public abstract class FeatureHost<F extends Feature, FH extends FeatureHost> {
             while (e != null) {
 
                 // dispatch to all features first
-                for (F feature : mFeatures.values()) {
+                for (Feature feature : mFeatures.values()) {
                     //noinspection unchecked
                     e.dispatch(feature);
                 }

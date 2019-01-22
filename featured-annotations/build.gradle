@@ -18,7 +18,6 @@ checkstyle {
 }
 
 dependencies {
-    compile deps.supportAnnotations
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

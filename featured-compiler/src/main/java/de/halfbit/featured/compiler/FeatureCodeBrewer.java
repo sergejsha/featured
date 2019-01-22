@@ -16,6 +16,7 @@
 package de.halfbit.featured.compiler;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -33,78 +34,54 @@ import de.halfbit.featured.compiler.model.MethodNode;
 import de.halfbit.featured.compiler.model.ModelNodeVisitor;
 import de.halfbit.featured.compiler.model.ParameterNode;
 
-public class FeatureCodeBrewer implements ModelNodeVisitor {
+import static de.halfbit.featured.compiler.Assertions.assertNotNull;
+
+class FeatureCodeBrewer implements ModelNodeVisitor {
 
     private final Names mNames;
 
+    // feature host
+    private ClassName mFeatureClassName;
     private ClassName mFeatureHostClassName;
     private TypeSpec.Builder mFeatureHostTypeBuilder;
+
+    // event
     private ClassName mEventClassName;
     private TypeSpec.Builder mEventTypeBuilder;
     private MethodSpec.Builder mEventConstructorBuilder;
-    private MethodSpec.Builder mDispachMethodBuilder;
+    private MethodSpec.Builder mEventDispatchMethodBuilder;
+
+    // common
     private StringBuilder mListedFields;
     private StringBuilder mListedParams;
 
-    public FeatureCodeBrewer(Names names) {
+    FeatureCodeBrewer(Names names) {
         mNames = names;
     }
 
-    @Override public boolean onFeatureEnter(FeatureNode featureNode) {
+    @Override
+    public boolean onFeatureEnter(FeatureNode featureNode) {
         if (featureNode.isLibraryNode()) {
             return false;
         }
 
+        mFeatureClassName = mNames.getFeatureClassName(featureNode);
         mFeatureHostClassName = mNames.getFeatureHostClassName(featureNode);
 
-        TypeName superFeatureHostType = mNames.getFeatureHostSuperTypeName(featureNode);
-
-        if (featureNode.hasInheritingFeatureNodes()) {
-            // public class FeatureAHost<F extends FeatureA, FH extends FeatureAHost>
-            //                      extends FeatureHost<F, FH> { ...
-
-            mFeatureHostTypeBuilder = TypeSpec
-                    .classBuilder(mFeatureHostClassName.simpleName())
-                    .addTypeVariable(TypeVariableName.get("F",
-                            mNames.getFeatureClassName(featureNode)))
-                    .addTypeVariable(TypeVariableName.get("FH", mFeatureHostClassName))
-                    .superclass(superFeatureHostType)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addMethod(MethodSpec.constructorBuilder()
-                            .addModifiers(Modifier.PUBLIC)
-                            .addParameter(ParameterSpec
-                                    .builder(mNames.getContextClassName(), "context")
-                                    .addAnnotation(mNames.getNonNullClassName())
-                                    .build())
-                            .addStatement("super(context)")
-                            .build());
-
-        } else {
-            // public class FeatureBHost extends FeatureAHost<FeatureB, FeatureBHost> { ...
-
-            mFeatureHostTypeBuilder = TypeSpec
-                    .classBuilder(mFeatureHostClassName.simpleName())
-                    .superclass(superFeatureHostType)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addMethod(MethodSpec.constructorBuilder()
-                            .addModifiers(Modifier.PUBLIC)
-                            .addParameter(ParameterSpec
-                                    .builder(mNames.getContextClassName(), "context")
-                                    .addAnnotation(mNames.getNonNullClassName())
-                                    .build())
-                            .addStatement("super(context)")
-                            .build());
-        }
+        brewClassFeatureHost(featureNode);
+        brewMethodWithFeature(featureNode);
+        brewMethodWithFeatureName(featureNode);
 
         return true;
     }
 
-    @Override public void onMethodEnter(MethodNode methodElement) {
+    @Override
+    public void onMethodEnter(MethodNode methodElement) {
         mEventClassName = mNames.getEventClassName(methodElement);
 
         mEventTypeBuilder = TypeSpec.classBuilder(mEventClassName)
-                .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .superclass(mNames.getEventSuperClassName(methodElement));
+                .addModifiers(Modifier.STATIC, Modifier.FINAL)
+                .superclass(mNames.getEventSuperClassName());
 
         if (methodElement.hasParameters()) {
             mEventConstructorBuilder = MethodSpec.constructorBuilder();
@@ -112,13 +89,13 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
             mListedParams = prepareStringBuilder(mListedParams);
         }
 
-        mDispachMethodBuilder = MethodSpec
+        mEventDispatchMethodBuilder = MethodSpec
                 .methodBuilder(mNames.getDispatchMethodName(methodElement))
                 .addModifiers(Modifier.PUBLIC);
-
     }
 
-    @Override public void onParameter(ParameterNode param) {
+    @Override
+    public void onParameter(ParameterNode param) {
 
         String fieldName = "m" + Names.capitalize(param.getName());
         if (!param.isDispatchCompleted()) {
@@ -132,11 +109,12 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
                 .addParameter(param.getType(), param.getName())
                 .addStatement("$L = $L", fieldName, param.getName());
 
-        mDispachMethodBuilder
+        mEventDispatchMethodBuilder
                 .addParameter(param.getType(), param.getName());
     }
 
-    @Override public void onMethodExit(MethodNode methodElement) {
+    @Override
+    public void onMethodExit(MethodNode methodElement) {
 
         String fieldNames = "";
         String paramNames = "";
@@ -147,27 +125,143 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
         }
 
         mFeatureHostTypeBuilder
+
                 // event class
                 .addType(mEventTypeBuilder
                         .addMethod(MethodSpec.methodBuilder("dispatch")
                                 .addModifiers(Modifier.PROTECTED)
                                 .addAnnotation(mNames.getOverrideClassName())
-                                .addParameter(mNames.getFeatureClassName(
-                                        methodElement.getParent()), "feature")
-                                .addStatement("feature.$L($L)",
-                                        mNames.getFeatureMethodName(methodElement), fieldNames)
+                                .addParameter(ParameterSpec
+                                        .builder(mNames.getFeatureClassName(), "feature")
+                                        .addAnnotation(mNames.getNonNullClassName())
+                                        .build())
+                                .addCode(CodeBlock.builder()
+                                        .beginControlFlow("if (feature instanceof $T)",
+                                                mFeatureClassName)
+                                        .addStatement("(($T) feature).$L($L)", mFeatureClassName,
+                                                mNames.getFeatureMethodName(methodElement),
+                                                fieldNames)
+                                        .endControlFlow()
+                                        .build())
                                 .build())
                         .build())
-                // dispatch event method
-                .addMethod(mDispachMethodBuilder
+
+                // dispatch method
+                .addMethod(mEventDispatchMethodBuilder
                         .addStatement("dispatch(new $T($L))", mEventClassName, paramNames)
                         .build());
-
-
     }
 
-    @Override public void onFeatureExit(FeatureNode featureNode) {
+    @Override
+    public void onFeatureExit(FeatureNode featureNode) {
         // nop
+    }
+
+    private void brewClassFeatureHost(FeatureNode featureNode) {
+        TypeName superFeatureHostType = mNames.getFeatureHostSuperTypeName(featureNode);
+        ClassName featureContextSuperClassName =
+                mNames.getFeatureContextSuperClassName(featureNode);
+
+        if (featureNode.hasInheritingFeatureNodes()) {
+            // public abstract class FeatureAHost<FH extends FeatureAHost, C extends Context>
+            //                      extends FeatureHost<FH, C> {
+
+            TypeVariableName contextTypeVariable =
+                    mNames.getFeatureContextTypeVariableName(featureNode);
+            TypeVariableName featureHostType = mNames.getFeatureHostTypeVariableName(featureNode);
+
+            mFeatureHostTypeBuilder = TypeSpec
+                    .classBuilder(mFeatureHostClassName.simpleName())
+                    .addTypeVariable(assertNotNull(featureHostType, featureNode))
+                    .addTypeVariable(assertNotNull(contextTypeVariable, featureNode))
+                    .superclass(superFeatureHostType)
+                    .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                    .addMethod(MethodSpec.constructorBuilder()
+                            .addModifiers(Modifier.PUBLIC)
+                            .addParameter(ParameterSpec
+                                    .builder(contextTypeVariable, "context")
+                                    .addAnnotation(mNames.getNonNullClassName())
+                                    .build())
+                            .addStatement("super(context)")
+                            .build());
+
+        } else {
+            // public class FeatureBHost extends FeatureAHost<FeatureBHost, Context> {
+
+            mFeatureHostTypeBuilder = TypeSpec
+                    .classBuilder(mFeatureHostClassName.simpleName())
+                    .superclass(superFeatureHostType)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addMethod(MethodSpec.constructorBuilder()
+                            .addModifiers(Modifier.PUBLIC)
+                            .addParameter(ParameterSpec
+                                    .builder(featureContextSuperClassName, "context")
+                                    .addAnnotation(mNames.getNonNullClassName())
+                                    .build())
+                            .addStatement("super(context)")
+                            .build());
+        }
+    }
+
+    private void brewMethodWithFeature(FeatureNode featureNode) {
+        MethodSpec.Builder withMethod = MethodSpec.methodBuilder("with")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(mNames.getNonNullClassName())
+                .addParameter(ParameterSpec.builder(mFeatureClassName, "feature")
+                        .addAnnotation(mNames.getNonNullClassName())
+                        .build());
+
+        TypeName featureHostType = mNames.getFeatureHostParameterTypeName(featureNode);
+
+        if (featureHostType == null) {
+            withMethod.addCode(CodeBlock.builder()
+                    .addStatement("addFeature(feature, feature.getClass().toString())")
+                    .addStatement("return this")
+                    .build())
+                    .returns(mFeatureHostClassName);
+
+        } else {
+            withMethod.addCode(CodeBlock.builder()
+                    .addStatement("addFeature(feature, feature.getClass().toString())")
+                    .addStatement("return ($T) this", featureHostType)
+                    .build())
+                    .returns(featureHostType);
+        }
+
+        mFeatureHostTypeBuilder
+                .addMethod(withMethod.build());
+    }
+
+    private void brewMethodWithFeatureName(FeatureNode featureNode) {
+        MethodSpec.Builder withMethod = MethodSpec.methodBuilder("with")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(mNames.getNonNullClassName())
+                .addParameter(ParameterSpec.builder(mFeatureClassName, "feature")
+                        .addAnnotation(mNames.getNonNullClassName())
+                        .build())
+                .addParameter(ParameterSpec.builder(mNames.getStringClassName(), "featureName")
+                        .addAnnotation(mNames.getNonNullClassName())
+                        .build());
+
+        TypeName featureHostType = mNames.getFeatureHostParameterTypeName(featureNode);
+
+        if (featureHostType == null) {
+            withMethod.addCode(CodeBlock.builder()
+                    .addStatement("addFeature(feature, featureName)")
+                    .addStatement("return this")
+                    .build())
+                    .returns(mFeatureHostClassName);
+
+        } else {
+            withMethod.addCode(CodeBlock.builder()
+                    .addStatement("addFeature(feature, featureName)")
+                    .addStatement("return ($T) this", featureHostType)
+                    .build())
+                    .returns(featureHostType);
+        }
+
+        mFeatureHostTypeBuilder
+                .addMethod(withMethod.build());
     }
 
     private static StringBuilder prepareStringBuilder(StringBuilder builder) {
@@ -185,7 +279,7 @@ public class FeatureCodeBrewer implements ModelNodeVisitor {
         return builder;
     }
 
-    public void brewTo(Filer filer) throws IOException {
+    void brewTo(Filer filer) throws IOException {
         JavaFile javaFile = JavaFile
                 .builder(mFeatureHostClassName.packageName(), mFeatureHostTypeBuilder.build())
                 .addFileComment("Featured code. Do not modify!")

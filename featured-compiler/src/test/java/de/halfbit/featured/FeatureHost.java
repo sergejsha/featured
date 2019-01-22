@@ -15,27 +15,32 @@
  */
 package de.halfbit.featured;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class FeatureHost<F, FH extends FeatureHost> {
+// Dummy class for tests to compile
+public abstract class FeatureHost<FH extends FeatureHost, C> {
 
     public interface OnDispatchCompleted {
         void onDispatchCompleted();
     }
 
-    protected static abstract class Event<F> {
-        @Nullable protected OnDispatchCompleted mOnDispatchCompleted;
+    protected static abstract class Event {
+        @Nullable
+        protected OnDispatchCompleted mOnDispatchCompleted;
 
-        protected abstract void dispatch(F feature);
+        protected abstract void dispatch(@NotNull Feature feature);
     }
 
-    public FeatureHost(@NonNull Context context) {
+    public FeatureHost(@NotNull C context) {
         throw new RuntimeException("Stub!");
     }
 
     protected void dispatch(Event event) {
+        throw new RuntimeException("Stub!");
+    }
+
+    protected void addFeature(Feature feature, @Nullable String featureName) {
         throw new RuntimeException("Stub!");
     }
 

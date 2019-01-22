@@ -1,5 +1,5 @@
-apply plugin: 'java'
 apply plugin: 'checkstyle'
+apply plugin: 'java'
 
 sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
 targetCompatibility = rootProject.ext.targetCompatibilityVersion
@@ -21,6 +21,7 @@ dependencies {
     implementation deps.javapoet
     implementation deps.jetbrains
 
+    testImplementation deps.android
     testImplementation deps.junit
     testImplementation deps.truth
     testImplementation deps.robolectric

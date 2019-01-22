@@ -16,6 +16,7 @@
 package de.halfbit.featured.compiler;
 
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -25,10 +26,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 import de.halfbit.featured.compiler.model.FeatureNode;
 import de.halfbit.featured.compiler.model.MethodNode;
@@ -49,15 +58,22 @@ public class Names {
             ClassName.get(PACKAGE_NAME, "FeatureHost", "OnDispatchCompleted");
     private static final ClassName CONTEXT =
             ClassName.get("android.content", "Context");
+    private static final ClassName STRING =
+            ClassName.get("java.lang", "String");
     private static final ClassName NOT_NULL =
             ClassName.get("org.jetbrains.annotations", "NotNull");
     private static final ClassName OVERRIDE =
             ClassName.get("java.lang", "Override");
 
-    private final Elements mElementUtils;
+    private static final int HOST_PARAMETER_INDEX = 0;
+    private static final int CONTEXT_PARAMETER_INDEX = 1;
 
-    public Names(Elements elementUtils) {
+    private final Elements mElementUtils;
+    private final Types mTypeUtils;
+
+    public Names(Elements elementUtils, Types typeUtils) {
         mElementUtils = elementUtils;
+        mTypeUtils = typeUtils;
     }
 
     private String getPackageName(TypeElement type) {
@@ -70,31 +86,100 @@ public class Names {
     }
 
     public ClassName getFeatureHostClassName(FeatureNode featureNode) {
-        TypeElement element = featureNode.getElement();
-        return ClassName.get(getPackageName(element), element.getSimpleName().toString() + "Host");
-    }
 
-    public TypeName getFeatureHostSuperTypeName(FeatureNode featureNode) {
-        FeatureNode superFeatureNode = featureNode.getSuperFeatureNode();
-        ClassName featureHostClass = superFeatureNode == null
-                ? FEATURE_HOST : getFeatureHostClassName(superFeatureNode);
+        // we read host name from the feature class parameters
 
-        if (featureNode.hasInheritingFeatureNodes()) {
-            return ParameterizedTypeName.get(featureHostClass,
-                    TypeVariableName.get("F"), TypeVariableName.get("FH"));
+        TypeMirror superType = featureNode.getElement().getSuperclass();
+        if (superType.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException();
         }
 
-        ClassName featureType = getFeatureClassName(featureNode);
-        ClassName featureHostType = getFeatureHostClassName(featureNode);
-        return ParameterizedTypeName.get(featureHostClass, featureType, featureHostType);
+        TypeName featureHostName = getFeatureParameterTypeVariableName(
+                (DeclaredType) superType, HOST_PARAMETER_INDEX);
+        ClassName featureHostClassName = null;
+
+        if (featureHostName instanceof ClassName) {
+            // FeatureA extends Feature<FeatureAHost, Context>
+            featureHostClassName = (ClassName) featureHostName;
+        }
+
+        if (featureHostName instanceof TypeVariableName) {
+            // FeatureA<FH extends FeatureAHost, C extends Context> extends Feature<FH, C>
+            TypeVariableName featureHostVariableTypeName = (TypeVariableName) featureHostName;
+            if (featureHostVariableTypeName.bounds.size() <= HOST_PARAMETER_INDEX) {
+                throw new IllegalArgumentException("Missing feature host parameter. \n"
+                        + featureNode + "\n" + featureHostVariableTypeName);
+            }
+            TypeName featureHostTypeName = featureHostVariableTypeName.bounds
+                    .get(HOST_PARAMETER_INDEX);
+            if (featureHostTypeName instanceof ClassName) {
+                featureHostClassName = (ClassName) featureHostTypeName;
+            }
+        }
+
+        if (featureHostClassName == null) {
+            throw new IllegalArgumentException("Unsupported feature host name declaration. \n"
+                    + featureNode + "\n" + featureHostName);
+        }
+
+        PackageElement packageElement = mElementUtils.getPackageOf(featureNode.getElement());
+        return ClassName.get(packageElement.toString(), featureHostClassName.simpleName());
     }
 
-    public ClassName getContextClassName() {
-        return CONTEXT;
+    public ClassName getFeatureContextSuperClassName(FeatureNode featureNode) {
+        return getFeatureParameterClass(featureNode, CONTEXT_PARAMETER_INDEX);
+    }
+
+    private ClassName getFeatureParameterClass(FeatureNode featureNode, int parameterIndex) {
+        TypeMirror superClass = featureNode.getElement().getSuperclass();
+        if (superClass.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException(
+                    "Check model validator. It must check feature super class.");
+        }
+
+        Element argElem = getFeatureParameterElement((DeclaredType) superClass, parameterIndex);
+        if (argElem == null || argElem.getKind() == ElementKind.TYPE_PARAMETER) {
+            return null;
+        }
+        return ClassName.get((TypeElement) argElem);
+    }
+
+    public Element getFeatureParameterElement(DeclaredType clazz, int parameterIndex) {
+        List<? extends TypeMirror> args = clazz.getTypeArguments();
+        if (parameterIndex >= args.size()) {
+            return null;
+        }
+        return mTypeUtils.asElement(args.get(parameterIndex));
+    }
+
+    public TypeVariableName getFeatureContextTypeVariableName(FeatureNode featureNode) {
+        return getParameterTypeVariableName(featureNode, CONTEXT_PARAMETER_INDEX);
+    }
+
+    public TypeVariableName getFeatureHostTypeVariableName(FeatureNode featureNode) {
+        return getParameterTypeVariableName(featureNode, HOST_PARAMETER_INDEX);
+    }
+
+    private TypeVariableName getParameterTypeVariableName(FeatureNode featureNode,
+                                                          int parameterIndex) {
+        TypeMirror type = featureNode.getElement().asType();
+        if (type.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException("FeatureNode type is not supported: " + featureNode);
+        }
+        Element paramElem = getFeatureParameterElement((DeclaredType) type, parameterIndex);
+        if (paramElem.getKind() == ElementKind.TYPE_PARAMETER) {
+            return TypeVariableName.get((TypeVariable) paramElem.asType());
+        }
+        throw new IllegalArgumentException(
+                "Expecting paramElem of kind TYPE_PARAMETER, while received" + paramElem);
     }
 
     public ClassName getNonNullClassName() {
         return NOT_NULL;
+    }
+
+    public ClassName getStringClassName() {
+        return STRING;
     }
 
     public ClassName getOverrideClassName() {
@@ -128,18 +213,80 @@ public class Names {
         return capitalize(getFeatureMethodName(methodElement)) + "Event";
     }
 
-    public TypeName getEventSuperClassName(MethodNode methodElement) {
-        ClassName featureType = getFeatureClassName(methodElement.getParent());
-        return ParameterizedTypeName.get(FEATURE_HOST_EVENT, featureType);
+    public TypeName getEventSuperClassName() {
+        return FEATURE_HOST_EVENT;
     }
 
     public String getFeatureMethodName(MethodNode methodElement) {
         return methodElement.getElement().getSimpleName().toString();
     }
 
-    public TypeName getFeatureSuperTypeName(FeatureNode featureNode) {
-        ClassName featureHostClass = getFeatureHostClassName(featureNode);
-        return ParameterizedTypeName.get(FEATURE, featureHostClass);
+    public TypeName getSuggestedSuperFeatureTypeName(FeatureNode featureNode) {
+        String featureHostPackage = getPackageName(featureNode.getElement());
+        String featureHostName = featureNode.getName() + "Host";
+        ClassName suggestedFeatureHostClassName = ClassName
+                .get(featureHostPackage, featureHostName);
+        return ParameterizedTypeName.get(FEATURE, suggestedFeatureHostClassName, CONTEXT);
+    }
+
+    public TypeName getFeatureHostSuperTypeName(FeatureNode featureNode) {
+
+        // public class FeatureA extends Feature<FeatureAHost, Context> {
+        // public class FeatureA<FH extends FeatureAHost, C extends App> extends Feature<FH, C> {
+        // public class FeatureB extends FeatureA<FeatureBHost, Context> {
+
+        TypeMirror superType = featureNode.getElement().getSuperclass();
+        if (superType.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException();
+        }
+
+        TypeName hostTypeName = getFeatureParameterTypeVariableName(
+                (DeclaredType) superType, HOST_PARAMETER_INDEX);
+
+        TypeName contextTypeName = getFeatureParameterTypeVariableName(
+                (DeclaredType) superType, CONTEXT_PARAMETER_INDEX);
+
+        FeatureNode superFeatureNode = featureNode.getSuperFeatureNode();
+        if (superFeatureNode == null) {
+            DeclaredType declaredType = (DeclaredType) superType;
+            TypeName featureClassName = ClassName.get(declaredType.asElement().asType());
+            if (featureClassName instanceof ParameterizedTypeName) {
+                ParameterizedTypeName ptn = (ParameterizedTypeName) featureClassName;
+                ClassName featureHostClass = ClassName.get(
+                        ptn.rawType.packageName(), ptn.rawType.simpleName() + "Host");
+                return ParameterizedTypeName.get(featureHostClass, hostTypeName, contextTypeName);
+            }
+        }
+
+        ClassName featureHostClass = superFeatureNode == null
+                ? FEATURE_HOST : getFeatureHostClassName(superFeatureNode);
+
+        return ParameterizedTypeName.get(featureHostClass, hostTypeName, contextTypeName);
+    }
+
+    public TypeName getFeatureHostParameterTypeName(FeatureNode featureNode) {
+        TypeMirror type = featureNode.getElement().asType();
+        if (type.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException();
+        }
+        return getFeatureParameterTypeVariableName((DeclaredType) type, HOST_PARAMETER_INDEX);
+    }
+
+    private TypeName getFeatureParameterTypeVariableName(DeclaredType featureType,
+                                                         int featureParameterIndex) {
+        Element paramElem = getFeatureParameterElement(featureType, featureParameterIndex);
+        if (paramElem == null) {
+            return null;
+        }
+
+        if (paramElem.getKind() == ElementKind.TYPE_PARAMETER) {
+            return TypeVariableName.get((TypeVariable) paramElem.asType());
+
+        } else if (paramElem.getKind() == ElementKind.CLASS) {
+            return TypeName.get(paramElem.asType());
+        }
+
+        return null;
     }
 
     public TypeName getTypeNameByKind(VariableElement param) {
@@ -165,22 +312,31 @@ public class Names {
             case DECLARED:
                 TypeMirror type = param.asType();
                 TypeName typeName = ClassName.get(type);
-
-                List<? extends AnnotationMirror> annotationMirrors = param.getAnnotationMirrors();
-                if (annotationMirrors.size() > 0) {
-                    List<AnnotationSpec> annotationSpecs =
-                            new ArrayList<>(annotationMirrors.size());
-                    for (AnnotationMirror annotationMirror : annotationMirrors) {
-                        annotationSpecs.add(AnnotationSpec.get(annotationMirror));
-                    }
-                    typeName = typeName.annotated(annotationSpecs);
-                }
-
+                typeName = applyAnnotations(typeName, param);
                 return typeName;
+
+            case ARRAY:
+                ArrayType arrayType = (ArrayType) param.asType();
+                TypeName arrayTypeName = ArrayTypeName.get(arrayType);
+                arrayTypeName = applyAnnotations(arrayTypeName, param);
+                return arrayTypeName;
 
             default:
                 throw new IllegalStateException("unsupported kind: " + param.asType().getKind());
         }
+    }
+
+    private static TypeName applyAnnotations(TypeName typeName, VariableElement param) {
+        List<? extends AnnotationMirror> annotationMirrors = param.getAnnotationMirrors();
+        if (annotationMirrors.size() > 0) {
+            List<AnnotationSpec> annotationSpecs =
+                    new ArrayList<>(annotationMirrors.size());
+            for (AnnotationMirror annotationMirror : annotationMirrors) {
+                annotationSpecs.add(AnnotationSpec.get(annotationMirror));
+            }
+            typeName = typeName.annotated(annotationSpecs);
+        }
+        return typeName;
     }
 
     public ClassName getDispatchCompletedClassName() {

@@ -91,16 +91,29 @@ import org.jetbrains.annotations.NotNull;
  * @author sergej shafarenka
  * @see FeatureHost
  */
-public abstract class Feature<FH extends FeatureHost> {
+public abstract class Feature<FH extends FeatureHost, C> {
 
     private FH mFeatureHost;
+
+    @NotNull protected C getContext() {
+        assertFeatureHostAttached();
+        //noinspection unchecked
+        return (C) mFeatureHost.getContext();
+    }
 
     void attachFeatureHost(FH featureHost) {
         mFeatureHost = featureHost;
     }
 
     @NotNull protected FH getFeatureHost() {
+        assertFeatureHostAttached();
         return mFeatureHost;
+    }
+
+    private void assertFeatureHostAttached() {
+        if (mFeatureHost == null) {
+            throw new IllegalStateException("FeatureHost is not attached");
+        }
     }
 
 }

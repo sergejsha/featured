@@ -15,6 +15,7 @@
  */
 package de.halfbit.featured.sample;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,7 +28,7 @@ import de.halfbit.featured.FeatureEvent;
  * Basis class for all features. It declares all events every feature can receive.
  * Featured library will generate a SampleFeatureHost to be used in your activity.
  */
-public class SampleFeature extends Feature<SampleFeatureHost> {
+public class SampleFeature extends Feature<SampleFeatureHost, Activity> {
 
     @FeatureEvent
     protected void onCreate(@NonNull CoordinatorLayout parent,
