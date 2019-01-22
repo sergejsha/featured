@@ -19,7 +19,7 @@ dependencies {
     implementation deps.autoservice
     implementation deps.autocommon
     implementation deps.javapoet
-    implementation deps.jetbrains
+    implementation deps.jetbrainsAnnotations
 
     testImplementation deps.android
     testImplementation deps.junit

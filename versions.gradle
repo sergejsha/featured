@@ -17,7 +17,7 @@ ext.deps.supportDesign = 'com.android.support:design:28.0.0'
 
 // open source
 ext.deps.javapoet = 'com.squareup:javapoet:1.7.0'
-ext.deps.jetbrains = 'org.jetbrains:annotations:15.0'
+ext.deps.jetbrainsAnnotations = 'org.jetbrains:annotations:15.0'
 
 // testing
 ext.deps.junit = 'junit:junit:4.12'
