@@ -19,9 +19,7 @@ dependencies {
     compileOnly deps.android
 
     api project(':featured-annotations')
-    api deps.jetbrains
-
-    compileOnly deps.supportv4
+    api deps.jetbrainsAnnotations
 
     testImplementation deps.junit
     testImplementation deps.truth

@@ -135,14 +135,32 @@ afterEvaluate { project ->
       }
     }
 
+    /*
     task androidJavadocs(type: Javadoc) {
       source = android.sourceSets.main.java.source
       classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     }
+    */
 
+    /*
     task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
       classifier = 'javadoc'
       from androidJavadocs.destinationDir
+    }
+    */
+
+    android.libraryVariants.all { variant ->
+      if (variant.name == 'release') {
+        task androidJavadocs(type: Javadoc) {
+          source = variant.javaCompiler.source
+          classpath = files(((Object) android.bootClasspath.join(File.pathSeparator)))
+          classpath += variant.javaCompiler.classpath
+        }
+        task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+          classifier = 'javadoc'
+          from androidJavadocs.destinationDir
+        }
+      }
     }
 
     task androidSourcesJar(type: Jar) {
